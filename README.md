@@ -1,5 +1,5 @@
 # offscreen-mobile-viz
-> Developed by `Prof. Alark Joshi` and `Assistant Colm Lang`
+> Developed by `Prof. Alark Joshi` and `Asst. Colm Lang`
 
 This project aims to serve as an example of effective off-screen mobile data visualization techniques.
 
