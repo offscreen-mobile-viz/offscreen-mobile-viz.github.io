@@ -14,7 +14,7 @@ This project aims to serve as an example of effective off-screen mobile data vis
 
 2. Navigate to this project's directory
     ```sh
-    cd path/to/nodelink-treemap
+    cd path/to/offscreen-movile-viz
     ```
 
 3. Install dependencies
