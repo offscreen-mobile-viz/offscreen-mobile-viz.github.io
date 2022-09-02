@@ -57,6 +57,13 @@ export function DeviceOrientation({ children, className }) {
       angle = window.screen.orientation;
     }
 
+    /* deprecated but necessary for ios compatibility */
+    /* see: https://developer.mozilla.org/en-US/docs/Web/API/Window/orientation */
+    if (window.orientation){
+      angle = window.orientation;
+      orientation = Math.abs(angle) === 90 ? 'landscape' : 'portrait';
+    }
+
     setOrientationState({orientation, type, angle})
   }
 

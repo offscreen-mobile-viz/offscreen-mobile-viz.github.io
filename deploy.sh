@@ -14,7 +14,7 @@ git checkout -b main
 git add -A
 git commit -m 'deploy'
 
-git push -f git@github.com:colmpat/offscreen-mobile-viz.git main:gh-pages
+git push -f git@github.com:offscreen-mobile-viz/offscreen-mobile-viz.github.io.git main:gh-pages
 
 cd -
 
