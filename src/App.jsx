@@ -1,13 +1,12 @@
 import './app.css'
-import { Orientation, DeviceOrientation } from './screen-orientation/ScreenOrientation'
+import BarChart from './components/BarChart'
+import { Orientation, DeviceOrientation } from './utils/screen-orientation/ScreenOrientation'
 
 function App() {
   return (
     <DeviceOrientation>
       <Orientation orientation='landscape'>
-        <div>
-          <p>You are in landscape</p>
-        </div>
+        <BarChart data={[1,2,3,4,5]}/>
       </Orientation>
 
       <Orientation orientation='portrait'>
