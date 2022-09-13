@@ -1,12 +1,31 @@
 import './app.css'
-import BarChart from './components/BarChart'
+
+import Panels from './components/Panels'
+import { useState, useEffect } from 'react'
 import { Orientation, DeviceOrientation } from './utils/screen-orientation/ScreenOrientation'
 
+import * as d3 from 'd3'
+
 function App() {
+  const [data, setData] = useState([])
+  /**
+   * Here we parse the CSV files from /public/
+   */
+  useEffect(() => {
+    async function fetch() {
+      let data = await d3.csv('/data/cars.csv')
+
+      setData(data)
+    }
+
+    if(!data)
+      fetch()
+  }, [])
+
   return (
     <DeviceOrientation>
       <Orientation orientation='landscape'>
-        <BarChart data={[1,2,3,4,5]}/>
+        <Panels data={data} />
       </Orientation>
 
       <Orientation orientation='portrait'>
