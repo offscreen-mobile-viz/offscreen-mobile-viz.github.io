@@ -7,6 +7,9 @@ export default function BarChart({ data, accessor, setLeft, setRight }) {
     const barchart = BarWithContext()
     const barchartRef = useRef(null)
 
+    /**
+     * When data changes, we update the chart properties and re-render
+     */
     useEffect(() => {
         if (!data)
             return

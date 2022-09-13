@@ -18,8 +18,7 @@ function App() {
       setData(data)
     }
 
-    if(!data)
-      fetch()
+    fetch()
   }, [])
 
   return (
