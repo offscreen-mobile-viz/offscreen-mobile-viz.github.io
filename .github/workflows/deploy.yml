@@ -9,5 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Build & Deploy to Github Pages
     steps:
-      - id: node-to-gh
-        uses: fdelmazo/node-to-gh-action@v1
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+        with:
+          node-version: '18.x'
+      - run: npm ci
+      - run: npm run build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
