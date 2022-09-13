@@ -11,8 +11,8 @@ export default function Panels({ data }) {
 
   return (
     <div className='panels' >
-      <Offscreen data={left} side='test' />
-      <BarChart data={data} accessor={d => d['Fuel Information.City mpg']} setLeft={setLeft} setRight={setRight} />
+      <Offscreen data={left} side='left' />
+      <BarChart data={data} accessor={d => +d['Fuel Information.City mpg']} setLeft={setLeft} setRight={setRight} />
       <Offscreen data={right} side='right' />
     </div>
   )

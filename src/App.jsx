@@ -7,7 +7,7 @@ import { Orientation, DeviceOrientation } from './utils/screen-orientation/Scree
 import * as d3 from 'd3'
 
 function App() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState(null)
   /**
    * Here we parse the CSV files from /public/
    */
