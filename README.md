@@ -42,8 +42,4 @@ This project aims to serve as an example of effective off-screen mobile data vis
    ```
   
 ## Deploying to gh-pages
-  Run the deployment script. As long as you are a contributer to this repository, the script will generate a build and deploy it to the gh-pages branch.
-
-  ```sh
-  sh deploy.sh
-  ```
+  As long as you are a contributer to this repository, upon pushing to `main`, GH Actions will [Build & Deploy to the gh-pages branch](https://github.com/offscreen-mobile-viz/offscreen-mobile-viz.github.io/actions/workflows/deploy.yml).
