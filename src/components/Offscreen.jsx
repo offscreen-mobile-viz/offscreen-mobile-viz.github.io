@@ -26,7 +26,7 @@ export default function Offscreen({ data, side }) {
   useEffect(() => {
     // for now
     if (data)
-      setCount(data.length)
+      setCount(Object.keys(data).length)
 
     // TODO - update re-binning logic based on offscreen context strategy
   }, [data])

@@ -1,25 +1,24 @@
 import * as d3 from 'd3'
 
 export default function BarWithContext() {
-    let data,
-        accessor,   // the accessor function to get desired measure (eg. d => d.getThisAttribite)
-        setLeft,
-        setRight;
+    let data,       // arrrives in format { x, y, id }
+        dispatch;
 
     const my = (selection) => {
 
+        data = data.filter((d, i) => i < 1000)
+
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = selection.node().getBoundingClientRect()
+        const margin = { top: 7, right: 7, bottom: 7, left: 7 }
 
-        const bins = d3.bin()(data.map(accessor))
+        const x = d3.scaleBand()
+            .domain(d3.map(data, d => d.x))
+            .range([margin.left, width - margin.right]) // with 15px margin
 
-        const x = d3.scaleLinear()
-        .domain([d3.min(bins, d => d.x0), d3.max(bins, d => d.x1)])
-        .range([30, width - 15]) // with 15px margin
-        
         const y = d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length)])
-        .range([height - 15, 30]) // with 15px margin
+            .domain([0, d3.max(data, d => d.y)])
+            .range([height - margin.bottom, margin.top]) // with 15px margin
 
         const svg = selection.selectAll('.barsWithContext')
             .data([null])
@@ -27,37 +26,91 @@ export default function BarWithContext() {
             .attr('class', 'barsWithContext')
 
         svg.selectAll('.bar')
-        .data(bins)
-        .join('rect')
-        .attr('class', 'bar')
-        .attr('x', d => x(d.x0))
-        .attr('y', d => y(d.length))
-        .attr('width', d => x(d.x1) - x(d.x0) - 2)
-        .attr('height', d => height - 15 - y(d.length))
-        .attr('fill', 'steelblue')
+            .data(data, d => d.id)
+            .join('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x(d.x))
+            .attr('y', d => y(d.y))
+            .attr('width', x.bandwidth())
+            .attr('height', d => height - margin.bottom - y(d.y))
+            .attr('fill', 'steelblue')
 
-        /**
-         * Handles post-zoom necessary side-effects
-         */
-        const zoomed = () => {
-            // update axis
-            // update left and right
-            // setLeft(newLeft)
-            // setRight(newRight)
+        svg.call(zoom)
+
+        function zoom(svg) {
+            const extent = [[margin.left, margin.top], [width - margin.right, height - margin.bottom]];
+
+            svg.call(d3.zoom()
+                .scaleExtent([1, 50])
+                .translateExtent(extent)
+                .extent(extent)
+                .on("zoom", zoomed));
+
+            /**
+            * Handles post-zoom necessary side-effects
+            */
+            function zoomed(event) {
+                // update axis
+                const [min, max] = [7, width - 7]
+                x.range([min, max].map(d => event.transform.applyX(d)));
+
+                // to track the items to insert to offscreen left and right respectively
+                let l = {},
+                    r = {},
+                    lRmv = {},
+                    rRmv = {};
+
+                /**
+                 * For each bar we update its new x after the zoom.
+                 */
+                svg.selectAll(".bar")
+                    .attr('x', d => {
+                        // calculate the new x value
+                        const newX = x(d.x)
+
+                        // here we instantiate dispatch action objects for more concise code below
+                        const rmvLeft = { id: 'left', type: 'remove', payload: { [d.id]: d } }
+                        const rmvRight = { id: 'right', type: 'remove', payload: { [d.id]: d } }
+
+                        // offscreen left
+                        if (newX < min) {
+                            // append this element to the left object
+                            l[d.id] = d
+                            // remove it from the right
+                            rRmv[d.id] = d
+                        }
+                        // offscreen right
+                        else if (newX > max) {
+                            // append this element to the right object
+                            r[d.id] = d
+                            // remove it from the left
+                            lRmv[d.id] = d
+                        }
+                        // on screen
+                        else {
+                            // therefore we must delete this item from the left and right offscreen objects (if it exists)
+                            lRmv[d.id] = d
+                            rRmv[d.id] = d
+                        }
+                        return newX
+                    })
+                    .attr('width', x.bandwidth())
+
+                dispatch({ id: 'left', type: 'add', payload: l })
+                dispatch({ id: 'right', type: 'add', payload: r })
+                dispatch({ id: 'left', type: 'remove', payload: lRmv })
+                dispatch({ id: 'right', type: 'remove', payload: rRmv })
+            }
+
+
         }
     }
 
     my.data = function (_) {
         return arguments.length ? (data = _, my) : data;
     }
-    my.accessor = function (_) {
-        return arguments.length ? (accessor = _, my) : accessor;
-    }
-    my.setLeft = function (_) {
-        return arguments.length ? (setLeft = _, my) : setLeft;
-    }
-    my.setRight = function (_) {
-        return arguments.length ? (setRight = _, my) : setRight;
+    my.dispatch = function (_) {
+        return arguments.length ? (dispatch = _, my) : dispatch;
     }
 
     return my;
