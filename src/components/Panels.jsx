@@ -7,7 +7,7 @@ import './panels.scss'
 
 export default function Panels({ data }) {
   const [state, dispatch] = useReducer(reducer, { left: {}, right: {} })
-
+  
   /**
    * Reducer function for offscreen data state
    * @param {*} state in the format { left: {[id]: d}, right: {[id]: d} }

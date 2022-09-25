@@ -6,8 +6,6 @@ export default function BarWithContext() {
 
     const my = (selection) => {
 
-        data = data.filter((d, i) => i < 1000)
-
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = selection.node().getBoundingClientRect()
         const margin = { top: 7, right: 7, bottom: 7, left: 7 }
@@ -33,25 +31,32 @@ export default function BarWithContext() {
             .attr('y', d => y(d.y))
             .attr('width', x.bandwidth())
             .attr('height', d => height - margin.bottom - y(d.y))
+            .attr('stroke', 'midnightblue')
             .attr('fill', 'steelblue')
 
+            
+        const minWidth = 3, maxWidth = 75
+        let z = d3.zoom()
+            // we want the minumum zoom extent to be a factor such that all bars are at least the minWidht
+            .scaleExtent([minWidth / x.bandwidth(), maxWidth / x.bandwidth()])
+            
         svg.call(zoom)
 
         function zoom(svg) {
             const extent = [[margin.left, margin.top], [width - margin.right, height - margin.bottom]];
 
-            svg.call(d3.zoom()
-                .scaleExtent([1, 50])
-                .translateExtent(extent)
-                .extent(extent)
-                .on("zoom", zoomed));
+            z.translateExtent(extent)
+            .extent(extent)
+            .on("zoom", zoomed)
+
+            svg.call(z);
 
             /**
             * Handles post-zoom necessary side-effects
             */
             function zoomed(event) {
                 // update axis
-                const [min, max] = [7, width - 7]
+                const [min, max] = [margin.left, width - margin.right]
                 x.range([min, max].map(d => event.transform.applyX(d)));
 
                 // to track the items to insert to offscreen left and right respectively
@@ -67,10 +72,6 @@ export default function BarWithContext() {
                     .attr('x', d => {
                         // calculate the new x value
                         const newX = x(d.x)
-
-                        // here we instantiate dispatch action objects for more concise code below
-                        const rmvLeft = { id: 'left', type: 'remove', payload: { [d.id]: d } }
-                        const rmvRight = { id: 'right', type: 'remove', payload: { [d.id]: d } }
 
                         // offscreen left
                         if (newX < min) {
@@ -101,8 +102,6 @@ export default function BarWithContext() {
                 dispatch({ id: 'left', type: 'remove', payload: lRmv })
                 dispatch({ id: 'right', type: 'remove', payload: rRmv })
             }
-
-
         }
     }
 

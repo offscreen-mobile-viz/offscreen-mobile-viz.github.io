@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
+import DotPlot from '../charts/DotPlot'
 /**
  *  Offscreen displays the affscreen data provided for a given side. 
  *  
  *  side - the side to be displayed 'left' | 'right'
  */
-export default function Offscreen({ data, side }) {
-  const [count, setCount] = useState(0)
-
+export default function Offscreen({ data, side, id }) {
+  const chart = DotPlot()
   /**
    * This ensures that the Offscreen component is being provided a valid side prop
    * 
@@ -24,17 +24,17 @@ export default function Offscreen({ data, side }) {
    * This should handle re-binning and data manipulation requirements
    */
   useEffect(() => {
-    // for now
-    if (data)
-      setCount(Object.keys(data).length)
+    if (!data)
+      return
 
     // TODO - update re-binning logic based on offscreen context strategy
+    console.log(chart.dots())
   }, [data])
 
 
   return (
     <div className={"offscreen" + ` ${side}`}>
-      {`there are ${count} things offscreen on the ${side}`}
+      <svg/>
     </div>
   )
 }
