@@ -1,5 +1,9 @@
-import { useState, useEffect } from "react"
+import * as d3 from 'd3'
+
+import { useRef, useState, useEffect } from "react"
+
 import DotPlot from '../charts/DotPlot'
+
 /**
  *  Offscreen displays the affscreen data provided for a given side. 
  *  
@@ -7,6 +11,9 @@ import DotPlot from '../charts/DotPlot'
  */
 export default function Offscreen({ data, side, id }) {
   const chart = DotPlot()
+    .side(side)
+  const chartRef = useRef(null)
+
   /**
    * This ensures that the Offscreen component is being provided a valid side prop
    * 
@@ -28,13 +35,14 @@ export default function Offscreen({ data, side, id }) {
       return
 
     // TODO - update re-binning logic based on offscreen context strategy
-    console.log(chart.dots())
+    chart.data(Object.values(data))
+    d3.select(chartRef.current).call(chart)
   }, [data])
 
 
   return (
     <div className={"offscreen" + ` ${side}`}>
-      <svg/>
+      <svg ref={chartRef} width='100%' height='100%' />
     </div>
   )
 }

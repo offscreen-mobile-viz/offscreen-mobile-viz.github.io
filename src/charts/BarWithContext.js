@@ -6,6 +6,8 @@ export default function BarWithContext() {
 
     const my = (selection) => {
 
+        data = data.filter((d, i) => i < 500)
+
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = selection.node().getBoundingClientRect()
         const margin = { top: 7, right: 7, bottom: 7, left: 7 }

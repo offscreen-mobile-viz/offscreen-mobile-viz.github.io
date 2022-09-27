@@ -15,7 +15,6 @@ export default function Panels({ data }) {
    * a type ('remove' or 'add'), and a payload which provides a dictionary of all items to add OR a single item to remove
    */
   function reducer(state, action) {
-
     if(action.type == 'add') {
       return {
         ...state,
