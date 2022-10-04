@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { useEffect, useRef } from "react"
 import BarWithContext from "../charts/BarWithContext"
 
-export default function BarChart({ data, id, accessor, dispatch }) {
+export default function BarChart({ data, dispatch, y }) {
     const barchart = BarWithContext()
     const barchartRef = useRef(null)
 
@@ -11,24 +11,18 @@ export default function BarChart({ data, id, accessor, dispatch }) {
      * When data changes, we update the chart properties and re-render
      */
     useEffect(() => {
-        if (!data)
+        if (!data || !y)
             return
         
         // update chart's properties
         barchart
-            .data(data.map((d, i) => {
-                return {
-                    x: id(d),
-                    y: accessor(d),
-                    // we give unique ids for simple removal and inserstion
-                    id: i
-                }
-            }))
+            .data(data)
             .dispatch(dispatch)
+            .y(y)
 
         // render the chart
         d3.select(barchartRef.current).call(barchart)
-    }, [data])
+    }, [data, y])
 
     return (
         <div className='chart'>

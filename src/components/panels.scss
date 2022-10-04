@@ -1,6 +1,6 @@
 .panels {
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 70px);
     display: flex;
  
     .chart {
@@ -11,4 +11,12 @@
         flex: 0.2;
         height: 100%;
     }
+}
+.header {
+    height: 70px;
+    width: 100vw;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -14,7 +14,6 @@ function App() {
   useEffect(() => {
     async function fetch() {
       let data = await d3.csv('/data/cars.csv')
-
       setData(data)
     }
 
