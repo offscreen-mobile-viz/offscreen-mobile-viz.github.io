@@ -1,8 +1,29 @@
 import * as d3 from 'd3'
 
-import { useRef, useState, useEffect } from "react"
+import { useRef, useEffect } from "react"
 
 import DotPlot from '../charts/DotPlot'
+import Histogram from '../charts/Histogram';
+
+/**
+ * enum to discretize ChartTypes
+ */
+export const ChartType = {
+  /**
+   * DOTPLOT40 - a DotPlot chart with 40 points per dot
+   */
+  DOTPLOT40: 'dotplot-40',
+  
+  /**
+   * DOTPLOT100 - a DotPlot chart with 100 points per dot
+   */
+  DOTPLOT100: 'dotplot-100',
+  
+  /**
+   * HISTOGRAM - a Histogram
+   */
+  HISTOGRAM: 'histogram',
+};
 
 /**
  *  Offscreen displays the affscreen data provided for a given side. 
@@ -13,13 +34,15 @@ export default function Offscreen({ data, bin, side, dimensions, y, type }) {
   /**
    * chart will hold all possible chart closures based on a specified type.
    * 
-   * Usage: chart['dotplot-40'] will render a dotplot with 40 points per dot.
-   *        this allows for ease of use to integrate with the type prop. chart[type]
-   *        will render the desired type.
+   * Usage: chart[ChartType.DOTPLOT40] will render a dotplot with 40 points per dot.
+   *        this allows for ease of use to integrate with the type prop. 
+   * 
+   * chart[type] will return the desired type of chart.
    */
   const chart = {
-    'dotplot-40': DotPlot(),
-    'dotplot-100': DotPlot().pointsPerDot(100),
+    [ChartType.DOTPLOT40]: DotPlot(),
+    [ChartType.DOTPLOT100]: DotPlot().pointsPerDot(100),
+    [ChartType.HISTOGRAM]: Histogram(),
   }
   const chartRef = useRef(null)
 

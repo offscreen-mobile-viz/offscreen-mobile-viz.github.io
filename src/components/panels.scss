@@ -2,14 +2,10 @@
     width: 100vw;
     height: calc(100vh - 70px);
     display: flex;
- 
+    overflow: hidden;
+
     .chart {
-        flex: 0.6;
-        height: 100%;
-    }
-    .offscreen {
-        flex: 0.2;
-        height: 100%;
+        flex-grow: 1;
     }
 }
 .header {

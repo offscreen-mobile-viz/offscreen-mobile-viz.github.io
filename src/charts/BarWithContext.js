@@ -6,7 +6,7 @@ export default function BarWithContext() {
         y
 
     const my = (selection) => {
-        data = data.filter((d,i) => i < 5000)
+        data = data.filter((_,i) => i < 5000)
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = selection.node().getBoundingClientRect()
         const margin = { top: 7, right: 7, bottom: 7, left: 7 }
@@ -15,13 +15,10 @@ export default function BarWithContext() {
         .domain(y.domain)
         .range(y.range)
 
-        
-        
         const x = d3.scaleBand()
         .domain(d3.map(data, d => d.x))
         .range([margin.left, width - margin.right]) // with 15px margin
         
-        // TODO x-axis
         
         const svg = selection.selectAll('.barsWithContext')
         .data([null])
@@ -38,8 +35,13 @@ export default function BarWithContext() {
             .attr('height', d => height - margin.bottom - yScale(d.y))
             .attr('stroke', 'midnightblue')
             .attr('fill', 'steelblue')
+            .append('title')
+            .text(d => {
+                return `Name: ${d.x}\nMPG: ${d.y}`
+            })
 
-            
+        // TODO ask about labeling x-axis
+        
         const minWidth = 3, maxWidth = 75
         let z = d3.zoom()
             // we want the minumum zoom extent to be a factor such that all bars are at least the minWidht

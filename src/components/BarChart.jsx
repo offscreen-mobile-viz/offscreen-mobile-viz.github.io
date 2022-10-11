@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { useEffect, useRef } from "react"
 import BarWithContext from "../charts/BarWithContext"
 
-export default function BarChart({ data, dispatch, y }) {
+export default function BarChart({ data, dispatch, y, dimensions }) {
     const barchart = BarWithContext()
     const barchartRef = useRef(null)
 

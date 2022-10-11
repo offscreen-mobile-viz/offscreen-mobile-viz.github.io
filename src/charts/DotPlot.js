@@ -17,10 +17,17 @@ export default function DotPlot() {
       .domain(y.domain)
       .range(y.range)
 
-    const svg = selection.selectAll('.dotPlot')
+    const svg = selection.selectAll('g')
       .data([null])
-      .join('g')
-      .attr('class', 'dotPlot ' + side)
+      .join(
+        (enter) => enter.append('g')
+          .attr('class', 'dotplot ' + side),
+        (update) => update.call(update => {
+          update.selectAll("*").remove()
+          update.attr('class', 'dotplot ' + side)
+        }),
+        (exit) => exit.remove()
+      )
     
     const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     axis.scale(yScale)
@@ -78,6 +85,8 @@ export default function DotPlot() {
         enter => enter.append('circle')
           .attr('class', 'dot')
           .attr('r', 5)
+          .attr('fill', 'skyblue')
+          .attr('stroke', 'black')
           .call(moveDots)
         ,
         update => update.call(update => {
