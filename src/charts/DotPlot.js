@@ -80,7 +80,7 @@ export default function DotPlot() {
     
       d3.select(bins.at(i))
       .selectAll('.dot')
-      .data([...Array(Math.ceil(datum.length / pointsPerDot))])
+      .data(Array(Math.ceil(datum.length / pointsPerDot)))
       .join(
         enter => enter.append('circle')
           .attr('class', 'dot')

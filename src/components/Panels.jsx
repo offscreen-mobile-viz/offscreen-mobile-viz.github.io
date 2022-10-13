@@ -141,6 +141,7 @@ export default function Panels({ data }) {
           <option value={ChartType.DOTPLOT40}>DotPlot 40</option>
           <option value={ChartType.DOTPLOT100}>DotPlot 100</option>
           <option value={ChartType.HISTOGRAM}>Histogram</option>
+          <option value={ChartType.BOXPLOT}>Box Plot</option>
         </select>
         <select name="data selector" onChange={handleDataChange}>
           <option value='cars'>Cars</option>

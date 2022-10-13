@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react"
 
 import DotPlot from '../charts/DotPlot'
 import Histogram from '../charts/Histogram';
+import BoxPlot from '../charts/BoxPlot';
 
 /**
  * enum to discretize ChartTypes
@@ -23,6 +24,16 @@ export const ChartType = {
    * HISTOGRAM - a Histogram
    */
   HISTOGRAM: 'histogram',
+
+  /**
+   * BOXPLOT - a bin based BoxPlot 
+   */
+  BOXPLOT: 'boxplot',
+
+  /**
+   * VIOLINPLO - a bin based ViolinPlot
+   */
+  VIOLINPLOT: 'violinplot'
 };
 
 /**
@@ -43,6 +54,9 @@ export default function Offscreen({ data, bin, side, dimensions, y, type }) {
     [ChartType.DOTPLOT40]: DotPlot(),
     [ChartType.DOTPLOT100]: DotPlot().pointsPerDot(100),
     [ChartType.HISTOGRAM]: Histogram(),
+    [ChartType.BOXPLOT]: BoxPlot(),
+    // [ChartType.VIOLINPLOT]: ViolinPlot(),
+    
   }
   const chartRef = useRef(null)
 

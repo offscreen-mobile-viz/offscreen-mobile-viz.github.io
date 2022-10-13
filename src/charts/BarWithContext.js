@@ -36,9 +36,7 @@ export default function BarWithContext() {
             .attr('stroke', 'midnightblue')
             .attr('fill', 'steelblue')
             .append('title')
-            .text(d => {
-                return `Name: ${d.x}\nMPG: ${d.y}`
-            })
+            .text(d => `Name: ${d.x}\nMPG: ${d.y}`)
 
         // TODO ask about labeling x-axis
         

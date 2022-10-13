@@ -14,6 +14,7 @@ export default function Histogram() {
     const yScale = d3.scaleLinear()
       .domain(y.domain)
       .range(y.range)
+
     
     const svg = selection.selectAll('g')
       .data([null])
@@ -26,22 +27,25 @@ export default function Histogram() {
         }),
         (exit) => exit.remove()
       )
+      .attr('transform', 'translate(' + 0 + ',' + -10 + ')')
     
-    const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
-    axis.scale(yScale)
+    const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
+    yAxis.scale(yScale)
 
-    const axis_g = svg.selectAll('.axis')
+    const y_axis_g = svg.selectAll('.yAxis')
       .data([null])
       .join('g')
-      .attr('class', 'axis')
+      .attr('class', 'yAxis')
       .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
     
-    axis_g.call(axis)
+    y_axis_g.call(yAxis)
     const bins = bin(data)
 
     const xScale = d3.scaleLinear()
       .domain([0, 5000 / 2]) // max is data.length / 2
       .range([0, width - 25])
+
+    // TODO x axis
 
     const updateBars = bars => {
       bars
@@ -81,9 +85,6 @@ export default function Histogram() {
   }
   my.side = function(_) {
     return arguments.length ? (side = _, my) : side
-  }
-  my.pointsPerDot = function(_) {
-    return arguments.length ? (pointsPerDot = _, my) : pointsPerDot
   }
   my.y = function(_) {
     return arguments.length ? (y = _, my) : y
