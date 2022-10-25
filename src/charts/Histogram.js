@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import getSvg from './getSvg'
 
 export default function Histogram() {
   let data,
@@ -15,19 +16,8 @@ export default function Histogram() {
       .domain(y.domain)
       .range(y.range)
 
-    
-    const svg = selection.selectAll('g')
-      .data([null])
-      .join(
-        (enter) => enter.append('g')
-          .attr('class', 'histogram ' + side),
-        (update) => update.call(update => {
-          update.selectAll("*").remove()
-          update.attr('class', 'histogram ' + side)
-        }),
-        (exit) => exit.remove()
-      )
-      .attr('transform', 'translate(' + 0 + ',' + -10 + ')')
+    // using abstracted getSvg to maintain idempotency
+    const svg = getSvg(selection, 'histogram', side)
     
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     yAxis.scale(yScale)
@@ -46,6 +36,7 @@ export default function Histogram() {
       .range([0, width - 25])
 
     // TODO x axis
+
 
     const updateBars = bars => {
       bars

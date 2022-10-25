@@ -9,7 +9,7 @@ export default function BarWithContext() {
         data = data.filter((_,i) => i < 5000)
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = selection.node().getBoundingClientRect()
-        const margin = { top: 7, right: 7, bottom: 7, left: 7 }
+        const margin = { top: 15, right: 7, bottom: 15, left: 7 }
 
         const yScale = d3.scaleLinear()
         .domain(y.domain)

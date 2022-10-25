@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import getSvg from './getSvg'
 
 export default function DotPlot() {
   let data,
@@ -17,17 +18,8 @@ export default function DotPlot() {
       .domain(y.domain)
       .range(y.range)
 
-    const svg = selection.selectAll('g')
-      .data([null])
-      .join(
-        (enter) => enter.append('g')
-          .attr('class', 'dotplot ' + side),
-        (update) => update.call(update => {
-          update.selectAll("*").remove()
-          update.attr('class', 'dotplot ' + side)
-        }),
-        (exit) => exit.remove()
-      )
+    // using abstracted getSvg to maintain idempotency
+    const svg = getSvg(selection, 'dotplot', side)
     
     const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     axis.scale(yScale)

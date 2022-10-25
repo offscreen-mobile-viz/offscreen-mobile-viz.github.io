@@ -2,9 +2,10 @@ import * as d3 from 'd3'
 
 import { useRef, useEffect } from "react"
 
+import BoxPlot from '../charts/BoxPlot';
 import DotPlot from '../charts/DotPlot'
 import Histogram from '../charts/Histogram';
-import BoxPlot from '../charts/BoxPlot';
+import ViolinPlot from '../charts/ViolinPlot';
 
 /**
  * enum to discretize ChartTypes
@@ -55,8 +56,7 @@ export default function Offscreen({ data, bin, side, dimensions, y, type }) {
     [ChartType.DOTPLOT100]: DotPlot().pointsPerDot(100),
     [ChartType.HISTOGRAM]: Histogram(),
     [ChartType.BOXPLOT]: BoxPlot(),
-    // [ChartType.VIOLINPLOT]: ViolinPlot(),
-    
+    [ChartType.VIOLINPLOT]: ViolinPlot(),
   }
   const chartRef = useRef(null)
 

@@ -1,7 +1,8 @@
 import * as d3 from 'd3'
 import getSvg from './getSvg'
+import { mapBinWithStats } from './BoxPlot'
 
-export default function BoxPlot() {
+export default function ViolinPlot() {
   let data,
       bin = d3.bin(),
       dimensions,
@@ -18,7 +19,7 @@ export default function BoxPlot() {
       .range(y.range)
 
     // using abstracted getSvg to maintain idempotency
-    const svg = getSvg(selection, 'boxplot', side)
+    const svg = getSvg(selection, 'violin', side)
     
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     yAxis.scale(yScale)
@@ -195,28 +196,4 @@ Outliers: ${d.outliers.length > 0 ? d.outliers.map(d => d.y) : 'none'}`
     return arguments.length ? (y = _, my) : y
   }
   return my
-}
-
-/**
- * Adapted from Mike Bostock's https://observablehq.com/@d3/box-plot
- * Mutates the provided bin to append fields for statistical values such as quartiles, range, and a set of outliers.
- * 
- * @param bin the bin to compute statistical values for
- * @returns {object} an object with fields *quartiles*, *range*, and *outliers*. Where
- * *quartiles* is an array of [*q1*, *q2*, *q3*], *range* is a tuple of [*min*, *max*],
- * and *outliers* is an array of individuals that qualify as outliers.
- */
-export const mapBinWithStats = bin => {
-  const min = d3.min(bin, d => d.y);
-  const max = d3.max(bin, d => d.y);
-  const q1 = d3.quantile(bin, 0.25, d => d.y);
-  const q2 = d3.quantile(bin, 0.50, d => d.y);
-  const q3 = d3.quantile(bin, 0.75, d => d.y);
-  const iqr = q3 - q1; // interquartile range
-  const r0 = Math.max(min, q1 - iqr * 1.5);
-  const r1 = Math.min(max, q3 + iqr * 1.5);
-  bin.quartiles = [q1, q2, q3];
-  bin.range = [r0, r1];
-  bin.outliers = bin.filter(d => d.y < r0 || d.y > r1);
-  return bin;
 }
