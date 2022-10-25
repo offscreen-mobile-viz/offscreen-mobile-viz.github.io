@@ -93,7 +93,7 @@ export default function Panels({ data }) {
    * When either the provided data changes or the selected dataset changes, update state.data
    */
   useEffect(() => {
-    if(!data || !dataset)
+    if(!data || !dataset || !data[dataset])
       return
 
     dispatch({
