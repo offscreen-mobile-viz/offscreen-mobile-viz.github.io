@@ -1,30 +1,31 @@
 import * as d3 from 'd3'
 
 export default function BarWithContext() {
-    let data,       // arrrives in format { x, y, id }
+    let data = [],       // arrrives in format { x, y, id }
         dispatch,
-        y
+        domain,
+        dimensions
 
     const my = (selection) => {
-        data = data.filter((_,i) => i < 5000)
+        // data = data.filter((_,i) => i < 1000)
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
-        const { width, height } = selection.node().getBoundingClientRect()
+        const { width, height } = dimensions
         const margin = { top: 15, right: 7, bottom: 15, left: 7 }
-
-        const yScale = d3.scaleLinear()
-        .domain(y.domain)
-        .range(y.range)
 
         const x = d3.scaleBand()
         .domain(d3.map(data, d => d.x))
         .range([margin.left, width - margin.right]) // with 15px margin
         
+        const yScale = d3.scaleLinear()
+        .domain(domain)
+        .range([height - 15, 15])
         
         const svg = selection.selectAll('.barsWithContext')
         .data([null])
         .join('g')
         .attr('class', 'barsWithContext')
         
+        svg.selectAll('.bar').remove()
         svg.selectAll('.bar')
             .data(data, d => d.id)
             .join('rect')
@@ -64,12 +65,8 @@ export default function BarWithContext() {
                 const [min, max] = [margin.left, width - margin.right]
                 x.range([min, max].map(d => event.transform.applyX(d)));
 
-                // to track the items to insert to offscreen left and right respectively
-                let l = {},
-                    r = {},
-                    lRmv = {},
-                    rRmv = {};
-
+                let left = 0, right = data.length;
+                let foundLeft = false, foundRight = false
                 /**
                  * For each bar we update its new x after the zoom.
                  */
@@ -78,34 +75,22 @@ export default function BarWithContext() {
                         // calculate the new x value
                         const newX = x(d.x)
 
-                        // offscreen left
-                        if (newX < min) {
-                            // append this element to the left object
-                            l[d.id] = d
-                            // remove it from the right
-                            rRmv[d.id] = d
+                        // if this is the first item onscreen
+                        if (!foundLeft && newX >= min) {
+                            left = d.id
+                            foundLeft = true
                         }
                         // offscreen right
-                        else if (newX > max) {
-                            // append this element to the right object
-                            r[d.id] = d
-                            // remove it from the left
-                            lRmv[d.id] = d
+                        else if (!foundRight && newX > max) {
+                            right = d.id
+                            foundRight = true
                         }
-                        // on screen
-                        else {
-                            // therefore we must delete this item from the left and right offscreen objects (if it exists)
-                            lRmv[d.id] = d
-                            rRmv[d.id] = d
-                        }
+                        
                         return newX
                     })
                     .attr('width', x.bandwidth())
-
-                dispatch({ id: 'left', type: 'add', payload: l })
-                dispatch({ id: 'right', type: 'add', payload: r })
-                dispatch({ id: 'left', type: 'remove', payload: lRmv })
-                dispatch({ id: 'right', type: 'remove', payload: rRmv })
+                
+                dispatch({ left, right })
             }
         }
     }
@@ -116,8 +101,11 @@ export default function BarWithContext() {
     my.dispatch = function (_) {
         return arguments.length ? (dispatch = _, my) : dispatch;
     }
-    my.y = function (_) {
-        return arguments.length ? (y = _, my) : y;
+    my.domain = function (_) {
+        return arguments.length ? (domain = _, my) : domain;
+    }
+    my.dimensions = function (_) {
+        return arguments.length ? (dimensions = _, my) : dimensions;
     }
 
     return my;

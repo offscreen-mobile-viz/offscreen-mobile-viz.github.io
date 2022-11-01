@@ -7,15 +7,16 @@ export default function BoxPlot() {
       dimensions,
       side,
       showOutliers = true,
-      y
+      domain,
+      maxBinSize
 
   const my = (selection) => {
 
     const { width, height } = dimensions
 
     const yScale = d3.scaleLinear()
-      .domain(y.domain)
-      .range(y.range)
+    .domain(domain)
+    .range([height - 15, 15])
 
     // using abstracted getSvg to maintain idempotency
     const svg = getSvg(selection, 'boxplot', side)
@@ -30,7 +31,7 @@ export default function BoxPlot() {
       .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
     
     y_axis_g.call(yAxis)
-    const bins = bin(data).map(mapBinWithStats)
+    const bins = data.map(mapBinWithStats)
 
     /**
      * Updates the box based on quantile stats passed through data
@@ -191,8 +192,11 @@ Outliers: ${d.outliers.length > 0 ? d.outliers.map(d => d.y) : 'none'}`
   my.showOutliers = function(_) {
     return arguments.length ? (showOutliers = _, my) : showOutliers
   }
-  my.y = function(_) {
-    return arguments.length ? (y = _, my) : y
+  my.domain = function(_) {
+    return arguments.length ? (domain = _, my) : domain
+  }
+  my.maxBinSize = function(_) {
+    return arguments.length ? (maxBinSize = _, my) : maxBinSize
   }
   return my
 }
