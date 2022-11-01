@@ -18,7 +18,6 @@ const Accessors = {
 function App() {
   const [data, setData] = useState([])
   const [datasets, setDatasets] = useState()
-  const [dataset, setDataset] = useState(Datasets.CARS)
   const [chart, setChart] = useState(ChartType.DOTPLOT40)
 
   useEffect(() => {
@@ -27,13 +26,13 @@ function App() {
       for(let dataset of Object.values(Datasets)) {
         const { x, y } = Accessors[dataset]
         datasets[dataset] = await d3.csv(`/data/${dataset}.csv`, (d, i) => {
-          return { x: x(d), y: y(d), id: i, side: 'middle' }
+          return { x: x(d), y: y(d), id: i }
         })
       }
       // set populated data
       setDatasets(datasets)
       // default to Cars first
-      setData(datasets[dataset])
+      setData(datasets[Datasets.CARS])
     }
     
     fetch()

@@ -6,13 +6,14 @@ import Offscreen from './Offscreen'
 import BarWithContext from '../charts/BarWithContext'
 
 import { useRef, useState, useEffect } from 'react'
-import BarChart from './BarChart'
-import { schemeDark2 } from 'd3'
 
 
 export default function Panels({ data, chart }) {
+  // get bounding width and height of the browser
   let { width, height } = d3.select('body').node().getBoundingClientRect()
-  height -= 70
+  // knock off 70px to account for topbox (or 0 if results in a negative height)
+  height = Math.max(height - 70, 0)
+
   const offscreenDimensions = { width: width * 0.15, height } 
   const barChartDimensions = { width: width - (2 * offscreenDimensions.width), height }
 
@@ -31,6 +32,10 @@ export default function Panels({ data, chart }) {
   const [left, setLeft] = useState([])
   const [right, setRight] = useState([])
 
+  /**
+   * When the dataset changes, set the barchart's data, update the yScale domain, 
+   * then trigger a re-render for offscreen components by updating left and right
+   */
   useEffect(() => {
     if(!data || data.length == 0) {
       return
@@ -38,8 +43,15 @@ export default function Panels({ data, chart }) {
 
     barchart.data(data)
     updateDomain()
+    
+    // Trigger a re-render for offscreen components
+    setLeft([])
+    setRight([])
   }, [data])
 
+  /**
+   * when left or right data changes, updateMaxBins
+   */
   useEffect(() => {
     updateMaxBin()
   }, [left, right])
@@ -55,14 +67,26 @@ export default function Panels({ data, chart }) {
     barchart.domain(domain)
 
     setDomain(domain)
-    renderBarChart()
+    
+    // render BarChart
+    d3.select(barchartRef.current).call(barchart)
   }
 
+  /**
+   * Dispatches offscreen data change. Slices data from beginning to left 
+   * then again from right to end. Then bins this slice and updates left and right.
+   * 
+   * @param left - last index of left slice (left shall be elems data[i] -> data[left])
+   * @param right - first index right slice (right shall be elems data[right] -> data[end])
+   */
   function dispatch({ left, right }) {
     setLeft(bin(data.slice(0, left)))
     setRight(bin(data.slice(right)))
   }
 
+  /**
+   * Sets maxBinSize to be the max length of left and right bins.
+   */
   function updateMaxBin() {
     setMaxBinSize(
       Math.max(
@@ -70,13 +94,6 @@ export default function Panels({ data, chart }) {
         d3.max(right, d => d.length)
       )
     )
-  }
-
-  /**
-   * calls the BarChart function on the svg selection
-   */
-  function renderBarChart() {
-    d3.select(barchartRef.current).call(barchart)
   }
 
   return (
