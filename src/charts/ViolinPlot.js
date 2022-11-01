@@ -3,18 +3,18 @@ import getSvg from './getSvg'
 
 export default function ViolinPlot() {
   let data,
-      bin = d3.bin(),
       dimensions,
       side,
-      y
+      domain, 
+      maxBinSize
 
   const my = (selection) => {
 
     const { width, height } = dimensions
 
     const yScale = d3.scaleLinear()
-      .domain(y.domain)
-      .range(y.range)
+      .domain(domain)
+      .range([height - 15, 15])
 
     // using abstracted getSvg to maintain idempotency
     const svg = getSvg(selection, 'violinplot', side)
@@ -29,11 +29,10 @@ export default function ViolinPlot() {
       .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
     
     y_axis_g.call(yAxis)
-    const bins = bin(data)
 
     const xScale = d3.scaleLinear()
-    .domain([0, d3.max(bins.map(d => d.length))])
-    .range([0, (width - 15) / 2])
+    .domain([0, maxBinSize])
+    .range([0, width - 15])
 
     const line = d3.area()
     .curve(d3.curveBasis)
@@ -58,7 +57,7 @@ export default function ViolinPlot() {
     }
     
     const violins = svg.selectAll('violin')
-    .data(bins.filter(d => d.length > 0))
+    .data(data.filter(d => d.length > 0))
     .join(
       enter => {
         enter.append('path')
@@ -88,16 +87,11 @@ export default function ViolinPlot() {
   my.side = function(_) {
     return arguments.length ? (side = _, my) : side
   }
-  my.y = function(_) {
-    return arguments.length ? (y = _, my) : y
+  my.domain = function(_) {
+    return arguments.length ? (domain = _, my) : domain
+  }
+  my.maxBinSize = function(_) {
+    return arguments.length ? (maxBinSize = _, my) : maxBinSize
   }
   return my
-}
-
-function kde(kernel, thresholds, data) {
-  return thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
-}
-
-function epanechnikov(bandwidth) {
-  return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
 }

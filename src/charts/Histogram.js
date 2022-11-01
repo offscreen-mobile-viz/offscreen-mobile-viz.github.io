@@ -3,18 +3,18 @@ import getSvg from './getSvg'
 
 export default function Histogram() {
   let data,
-      bin = d3.bin(),
       dimensions,
       side,
-      y
+      domain,
+      maxBinSize
 
   const my = (selection) => {
 
     const { width, height } = dimensions
 
     const yScale = d3.scaleLinear()
-      .domain(y.domain)
-      .range(y.range)
+      .domain(domain)
+      .range([height - 15, 15])
 
     // using abstracted getSvg to maintain idempotency
     const svg = getSvg(selection, 'histogram', side)
@@ -29,14 +29,12 @@ export default function Histogram() {
       .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
     
     y_axis_g.call(yAxis)
-    const bins = bin(data)
 
     const xScale = d3.scaleLinear()
-      .domain([0, 5000 / 2]) // max is data.length / 2
-      .range([0, width - 25])
+      .domain([0, maxBinSize]) // max is data.length / 2
+      .range([0, width - 50])
 
     // TODO x axis
-
 
     const updateBars = bars => {
       bars
@@ -47,7 +45,7 @@ export default function Histogram() {
     }
 
     const bars = svg.selectAll('.bar')
-      .data(bins)
+      .data(data)
       .join(
         enter => {
           enter
@@ -77,8 +75,11 @@ export default function Histogram() {
   my.side = function(_) {
     return arguments.length ? (side = _, my) : side
   }
-  my.y = function(_) {
-    return arguments.length ? (y = _, my) : y
+  my.domain = function(_) {
+    return arguments.length ? (domain = _, my) : domain
+  }
+  my.maxBinSize = function(_) {
+    return arguments.length ? (maxBinSize = _, my) : maxBinSize
   }
   return my
 }

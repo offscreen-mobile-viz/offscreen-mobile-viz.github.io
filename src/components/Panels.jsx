@@ -1,177 +1,103 @@
-import * as d3 from 'd3'
-
-import BarChart from './BarChart'
-import Offscreen from './Offscreen'
-
-import { Datasets } from '../App'
-import { ChartType } from './Offscreen'
-import { useState, useEffect, useReducer } from 'react'
-
 import './panels.scss'
 
-export default function Panels({ data }) {
-  /**
-   * Reducer function for offscreen data state
-   * @param {*} state in the format { left: {[id]: d}, right: {[id]: d}} }
-   * @param {*} action in the format which takes some id ('left' or 'right'), 
-   * a type ('remove' or 'add'), and a payload which provides a dictionary of all items to add OR a single item to remove
-   */
-  function reducer(state, action) {
-    switch(action.type) {
-      case 'add':
-        return {
-          ...state,
-          // we add 
-          [action.id]: { ...state[action.id], ...action.payload }
-        }
-      case 'remove':
-        // for each id in the provided payload, remove from state
-        Object.keys(action.payload).forEach(key => {
-          delete state[action.id][key]
-        })
-        return state
-      case 'set-scale':
-      case 'set-data':
-      case 'set-bin':
-        // att - attribute encoded in the action.type. eg. set-scale yields att == scale.
-        const att = action.type.slice(4);  
-        return {
-          ...state, [att]: action.payload
-        }
-      default:
-        throw new Error("Incorrect dispatch usage. action.type must be 'add' | 'remove | 'set-scale' | 'set-data | 'set-bin'")
-    }
-  }
+import * as d3 from 'd3'
 
-  /**
-   * state - the state of our data. In the form:{
-   *  left - offscreen data on the left
-   *  right - offscreen data on the right
-   *  scale - the scale that is shared between the charts
-   *  data - the central data
-   *  bin - the d3.bin constructor
-   * }
-   */
-  const [state, dispatch] = useReducer(reducer, { 
-    left: {},
-    right: {},
-    scale: d3.scaleLinear(), 
-    data: undefined,
-    bin: undefined,
-  })
+import Offscreen from './Offscreen'
+import BarWithContext from '../charts/BarWithContext'
 
-  /**
-   * chartType - the offscreen visualization technique
-   */
-  const [chartType, setChartType] = useState(ChartType.DOTPLOT40)
-  /**
-   * datset - the name of the selected dataset
-   */ 
-  const [dataset, setDataset] = useState(Datasets.CARS)
+import { useRef, useState, useEffect } from 'react'
+import BarChart from './BarChart'
+import { schemeDark2 } from 'd3'
 
-  /**
-   * From a selector change event, 
-   * change the underlying data to the selected dataset
-   */
-  const handleDataChange = (event) => {
-    const newDataset = event.target.value
-    setDataset(newDataset)
-  }
 
+export default function Panels({ data, chart }) {
   let { width, height } = d3.select('body').node().getBoundingClientRect()
   height -= 70
-  const offscreenDimensions = {
-    width: width * 0.15,
-    height: height
-  } 
-  const barChartDimensions = {
-    width: width - (2 * offscreenDimensions.width),
-    height: height
+  const offscreenDimensions = { width: width * 0.15, height } 
+  const barChartDimensions = { width: width - (2 * offscreenDimensions.width), height }
+
+  const barchartRef = useRef()
+  const barchart = BarWithContext()
+    .dispatch(dispatch)
+    .dimensions(barChartDimensions)
+
+  const [domain, setDomain] = useState([0, 1])
+
+  const bin = d3.bin()
+    .thresholds(8)
+    .value(d => d.y)
+  const [maxBinSize, setMaxBinSize] = useState(0)
+
+  const [left, setLeft] = useState([])
+  const [right, setRight] = useState([])
+
+  useEffect(() => {
+    if(!data || data.length == 0) {
+      return
+    }
+
+    barchart.data(data)
+    updateDomain()
+  }, [data])
+
+  useEffect(() => {
+    updateMaxBin()
+  }, [left, right])
+  
+  /**
+   * updates the domain of the y-axis 
+   * then propogates to dependencies
+   */
+  function updateDomain() {
+    const domain = [0, d3.max(data, d => d.y)] 
+    
+    bin.domain(domain)
+    barchart.domain(domain)
+
+    setDomain(domain)
+    renderBarChart()
+  }
+
+  function dispatch({ left, right }) {
+    setLeft(bin(data.slice(0, left)))
+    setRight(bin(data.slice(right)))
+  }
+
+  function updateMaxBin() {
+    setMaxBinSize(
+      Math.max(
+        d3.max(left, d => d.length),
+        d3.max(right, d => d.length)
+      )
+    )
   }
 
   /**
-   * When either the provided data changes or the selected dataset changes, update state.data
+   * calls the BarChart function on the svg selection
    */
-  useEffect(() => {
-    if(!data || !dataset || !data[dataset])
-      return
-
-    dispatch({
-      type: 'set-data',
-      payload: 
-        data[dataset]
-    })
-  }, [data, dataset])
-
-  /**
-   * When state.data changes, update d3-dependents. Eg. recalculate yScale and bins.
-   */
-  useEffect(() => {
-    if(state.data == undefined)
-      return
-
-    let yScale = d3.scaleLinear()
-      .domain([0, d3.max(state.data, d => d.y)])
-      .range([height - 15, 15]) // with 15px margin
-    
-    dispatch({ 
-      type: 'set-scale', 
-      payload: {
-        domain: yScale.domain(),
-        range: yScale.range()
-      }
-    })
-    
-    const bin = d3.bin()
-    .domain(yScale.domain())
-    .thresholds(8)
-    .value(d => d.y)
-
-    dispatch({
-      type: 'set-bin',
-      payload: bin
-    })
-
-  }, [state.data])
+  function renderBarChart() {
+    d3.select(barchartRef.current).call(barchart)
+  }
 
   return (
-    <>
-      <div className='header'>
-        <select name="chart selector" onChange={(event) => setChartType(event.target.value)}>
-          <option value={ChartType.DOTPLOT40}>DotPlot 40</option>
-          <option value={ChartType.DOTPLOT100}>DotPlot 100</option>
-          <option value={ChartType.HISTOGRAM}>Histogram</option>
-          <option value={ChartType.BOXPLOT}>Box Plot</option>
-          <option value={ChartType.VIOLINPLOT}>Violin Plot</option>
-        </select>
-        <select name="data selector" onChange={handleDataChange}>
-          <option value='cars'>Cars</option>
-        </select>
-      </div>
-      <div className='panels' >
-        <Offscreen 
-          data={state.left} 
-          bin={state.bin}
-          side='left' 
-          y={state.scale}
-          dimensions={offscreenDimensions}
-          type={chartType}
-        />
-        <BarChart 
-          data={state.data} 
-          dispatch={dispatch}
-          dimensions={barChartDimensions}
-          y={state.scale}
-        />
-        <Offscreen
-          data={state.right}
-          bin={state.bin}
-          side='right'
-          y={state.scale}
-          dimensions={offscreenDimensions}
-          type={chartType}
-        />
-      </div>
-    </>
+    <div className='panels' >
+      <Offscreen
+        data={left}
+        side='left'
+        type={chart}
+        dimensions={offscreenDimensions}
+        domain={domain}
+        maxBinSize={maxBinSize}
+      />
+      <svg ref={barchartRef} width={barChartDimensions.width} height={barChartDimensions.height} />
+      <Offscreen
+        data={right}
+        side='right'
+        type={chart}
+        dimensions={offscreenDimensions}
+        domain={domain}
+        maxBinSize={maxBinSize}
+      />
+    </div>
   )
 }

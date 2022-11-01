@@ -42,7 +42,7 @@ export const ChartType = {
  *  
  *  side - the side to be displayed 'left' | 'right'
  */
-export default function Offscreen({ data, bin, side, dimensions, y, type }) {
+export default function Offscreen({ data, side, type, dimensions, domain, maxBinSize }) {
   /**
    * chart will hold all possible chart closures based on a specified type.
    * 
@@ -51,13 +51,14 @@ export default function Offscreen({ data, bin, side, dimensions, y, type }) {
    * 
    * chart[type] will return the desired type of chart.
    */
-  const chart = {
+  const Chart = {
     [ChartType.DOTPLOT40]: DotPlot(),
     [ChartType.DOTPLOT100]: DotPlot().pointsPerDot(100),
     [ChartType.HISTOGRAM]: Histogram(),
     [ChartType.BOXPLOT]: BoxPlot(),
     [ChartType.VIOLINPLOT]: ViolinPlot(),
   }
+
   const chartRef = useRef(null)
 
   /**
@@ -77,17 +78,17 @@ export default function Offscreen({ data, bin, side, dimensions, y, type }) {
    * This should handle re-binning and data manipulation requirements
    */
   useEffect(() => {
-    if (!data || !y || !bin || !type)
+    if (!data || !type)
       return
-      
-    chart[type]
-      .data(Object.values(data))
-      .bin(bin)
-      .dimensions(dimensions)
-      .y(y)
+
+    Chart[type]
+      .data(data)
       .side(side)
-    d3.select(chartRef.current).call(chart[type])
-  }, [data, y, bin, type])
+      .dimensions(dimensions)
+      .domain(domain)
+      .maxBinSize(maxBinSize)
+    d3.select(chartRef.current).call(Chart[type])
+  }, [data, type])
 
 
   return (

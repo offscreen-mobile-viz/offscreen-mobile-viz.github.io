@@ -3,20 +3,20 @@ import getSvg from './getSvg'
 
 export default function DotPlot() {
   let data,
-      bin = d3.bin(),
       dimensions,
       side,
       pointsPerDot = 40,
       dotsPerBin = 5,
-      y
+      domain,
+      maxBinSize
 
   const my = (selection) => {
 
     const { width, height } = dimensions
 
     const yScale = d3.scaleLinear()
-      .domain(y.domain)
-      .range(y.range)
+      .domain(domain)
+      .range([height - 15, 15])
 
     // using abstracted getSvg to maintain idempotency
     const svg = getSvg(selection, 'dotplot', side)
@@ -24,23 +24,19 @@ export default function DotPlot() {
     const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     axis.scale(yScale)
     
-
     const axis_g = svg.selectAll('.axis')
       .data([null])
       .join('g')
       .attr('class', 'axis')
       .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
 
-    
     axis_g.call(axis)
-    const bins = bin(data)
 
-
+    // TODO add consideration and scaling for max bins
     const dotBins = svg.selectAll('.dotBin')
-      .data(bins)
+      .data(data)
       .join('g')
       .attr('class', 'dotBin')
-      
       
       const DOT_R = 5,
             DOT_D = 2 * DOT_R,
@@ -93,20 +89,20 @@ export default function DotPlot() {
   my.data = function(_) {
     return arguments.length ? (data = _, my) : data
   }
-  my.bin = function(_) {
-    return arguments.length ? (bin = _, my) : bin
+  my.side = function(_) {
+    return arguments.length ? (side = _, my) : side
   }
   my.dimensions = function(_) {
     return arguments.length ? (dimensions = _, my) : dimensions
   }
-  my.side = function(_) {
-    return arguments.length ? (side = _, my) : side
-  }
   my.pointsPerDot = function(_) {
     return arguments.length ? (pointsPerDot = _, my) : pointsPerDot
   }
-  my.y = function(_) {
-    return arguments.length ? (y = _, my) : y
+  my.domain = function(_) {
+    return arguments.length ? (domain = _, my) : domain
+  }
+  my.maxBinSize = function(_) {
+    return arguments.length ? (maxBinSize = _, my) : maxBinSize
   }
   return my
 }
