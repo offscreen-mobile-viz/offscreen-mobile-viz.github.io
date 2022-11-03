@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import _ from 'lodash'
 
 export default function BarWithContext() {
     let data = [],       // arrrives in format { x, y, id }
