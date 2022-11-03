@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import _ from 'lodash'
 
 export default function BarWithContext() {
     let data = [],       // arrrives in format { x, y, id }
@@ -7,7 +8,6 @@ export default function BarWithContext() {
         dimensions
 
     const my = (selection) => {
-        // data = data.filter((_,i) => i < 1000)
         // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = dimensions
         const margin = { top: 15, right: 7, bottom: 15, left: 7 }
@@ -25,29 +25,29 @@ export default function BarWithContext() {
         .join('g')
         .attr('class', 'barsWithContext')
         
-        svg.selectAll('.bar').remove()
-        svg.selectAll('.bar')
-            .data(data, d => d.id)
-            .join('rect')
-            .attr('class', 'bar')
-            .attr('x', d => x(d.x))
-            .attr('y', d => yScale(d.y))
-            .attr('width', x.bandwidth())
-            .attr('height', d => height - margin.bottom - yScale(d.y))
-            .attr('stroke', 'midnightblue')
-            .attr('fill', 'steelblue')
-            .append('title')
-            .text(d => `Name: ${d.x}\nMPG: ${d.y}`)
+        const drawBars = data => {
+            svg.selectAll('.bar')
+                .data(data, d => d.id)
+                .join('rect')
+                .attr('class', 'bar')
+                .attr('stroke', 'midnightblue')
+                .attr('fill', 'steelblue')
+                .attr('x', d => x(d.x))
+                .attr('y', d => yScale(d.y))
+                .attr('width', x.bandwidth())
+                .attr('height', d => height - margin.bottom - yScale(d.y))
+                .append('title')
+                .text(d => d.y)
+        }
 
-        // TODO ask about labeling x-axis
-        
         const minWidth = 3, maxWidth = 75
         let z = d3.zoom()
             // we want the minumum zoom extent to be a factor such that all bars are at least the minWidht
             .scaleExtent([minWidth / x.bandwidth(), maxWidth / x.bandwidth()])
-            
+        
+        drawBars(data)
         svg.call(zoom)
-
+        
         function zoom(svg) {
             const extent = [[margin.left, margin.top], [width - margin.right, height - margin.bottom]];
 
@@ -65,30 +65,24 @@ export default function BarWithContext() {
                 const [min, max] = [margin.left, width - margin.right]
                 x.range([min, max].map(d => event.transform.applyX(d)));
 
-                let left = 0, right = data.length;
-                let foundLeft = false, foundRight = false
-                /**
-                 * For each bar we update its new x after the zoom.
+                const left = firstIndexGreaterThan(data, min, d => x(d.x))
+                const right = firstIndexGreaterThan(data, max, d => x(d.x))
+                
+                /* 
+                 * Buffer shall be the number of extra bars to draw offscreen to allow for seemless scrolling 
+                 * 
+                 * Note that buffer is for now 1/4th of what is to be rendered on screen 
+                 * (therefore on scroll there will be at least a quarter of the page rendered out of bounds)
                  */
-                svg.selectAll(".bar")
-                    .attr('x', d => {
-                        // calculate the new x value
-                        const newX = x(d.x)
+                const buffer = Math.ceil((right - left) / 4)
 
-                        // if this is the first item onscreen
-                        if (!foundLeft && newX >= min) {
-                            left = d.id
-                            foundLeft = true
-                        }
-                        // offscreen right
-                        else if (!foundRight && newX > max) {
-                            right = d.id
-                            foundRight = true
-                        }
-                        
-                        return newX
-                    })
-                    .attr('width', x.bandwidth())
+                // draw bars based on newData
+                drawBars(data.slice(
+                    // from (left - buffer) or zero if left < buffer
+                    Math.max(left - buffer, 0), 
+                    // from (right + buffer) or just to end if right + buffer > data.length
+                    Math.min(right + buffer, data.length)
+                ))
                 
                 dispatch({ left, right })
             }
@@ -109,4 +103,29 @@ export default function BarWithContext() {
     }
 
     return my;
+}
+
+/**
+ * Executes a binary search to return the first index where 
+ * accessor(data[index]) > target (ie. the first element outside of a supplied bound).
+ * 
+ * This allows for efficient and useful 'Sliding Window problem' application for offscreen data calculation
+ * 
+ * @param {*} data the array to search through
+ * @param {*} target the value to search for
+ * @param {*} accessor the function to retrieve value to compare to target
+ */
+function firstIndexGreaterThan(data, target, accessor) {
+    let l = 0, r = data.length;
+    while(l < r) {
+        const m = Math.floor((l + r) / 2)
+
+        if(accessor(data[m]) < target) {
+            l = m + 1
+        } else {
+            r = m
+        }
+    }
+    
+    return r
 }
