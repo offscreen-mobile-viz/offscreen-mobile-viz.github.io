@@ -9,10 +9,12 @@ import * as d3 from 'd3'
 
 export const Datasets = {
   CARS: 'cars',
+  DIAMONDS: 'diamonds',
 };
 
 const Accessors = {
-  [Datasets.CARS]: { x: d => d['Identification.ID'], y: d => +d['Fuel Information.City mpg']}
+  [Datasets.CARS]: { x: d => d['Identification.ID'], y: d => +d['Fuel Information.City mpg']},
+  [Datasets.DIAMONDS]: { x: d => d['id'], y: d => +d['price']},
 }
 
 function App() {
@@ -25,9 +27,10 @@ function App() {
       const datasets = {}
       for(let dataset of Object.values(Datasets)) {
         const { x, y } = Accessors[dataset]
-        datasets[dataset] = await d3.csv(`/data/${dataset}.csv`, (d, i) => {
+        let data = await d3.csv(`/data/${dataset}.csv`, (d, i) => {
           return { x: x(d), y: y(d), id: i }
         })
+        datasets[dataset] = d3.shuffle(data)
       }
       // set populated data
       setDatasets(datasets)
@@ -61,6 +64,7 @@ function App() {
             </select>
             <select name="data selector" onChange={handleDataChange}>
               <option value={Datasets.CARS}>Cars</option>
+              <option value={Datasets.DIAMONDS}>Diamonds</option>
             </select>
           </div>
           <Panels data={data} chart={chart}/>

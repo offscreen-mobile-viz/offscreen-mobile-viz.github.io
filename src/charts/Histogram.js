@@ -18,6 +18,7 @@ export default function Histogram() {
 
     // using abstracted getSvg to maintain idempotency
     const svg = getSvg(selection, 'histogram', side)
+      .style('position', 'relative')
     
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     yAxis.scale(yScale)
@@ -35,6 +36,11 @@ export default function Histogram() {
       .range([0, width - 50])
 
     // TODO x axis
+    
+    const click = e => {
+      const bar = d3.select(e.target)
+
+    }
 
     const updateBars = bars => {
       bars
@@ -53,6 +59,7 @@ export default function Histogram() {
             .attr('class', 'bar')
             .attr('fill', 'skyblue')
             .attr('stroke', 'black')
+            .on('click', click)
             .call(updateBars)
         },
         update => update.call(update => {
