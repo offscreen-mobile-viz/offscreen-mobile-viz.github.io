@@ -1,1 +1,0 @@
-.topbar{height:70px;width:100vw;display:flex;align-items:center;justify-content:center}.panels{width:100vw;height:calc(100vh - 70px);display:flex;overflow:hidden}.panels .chart{flex-grow:1}html,body{margin:0;padding:0}
