@@ -7,6 +7,8 @@ import DotPlot from '../charts/DotPlot'
 import Histogram from '../charts/Histogram';
 import ViolinPlot from '../charts/ViolinPlot';
 
+import './offscreen.scss';
+
 /**
  * enum to discretize ChartTypes
  */

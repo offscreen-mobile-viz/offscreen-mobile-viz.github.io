@@ -21,12 +21,13 @@ export default function ViolinPlot() {
     
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     yAxis.scale(yScale)
+    yAxis.tickFormat(d3.format('0.2s'))
 
     const y_axis_g = svg.selectAll('.yAxis')
       .data([null])
       .join('g')
       .attr('class', 'yAxis')
-      .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
+      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
     
     y_axis_g.call(yAxis)
 

@@ -7,7 +7,6 @@ export default function BarWithContext() {
         dimensions
 
     const my = (selection) => {
-        // we scrape the dimensions from the fullscreen comptuted svg dimensions
         const { width, height } = dimensions
         const margin = { top: 15, right: 7, bottom: 15, left: 7 }
 
@@ -40,9 +39,11 @@ export default function BarWithContext() {
         }
 
         const minWidth = 3, maxWidth = 75
+        const scaleExtent = [minWidth / x.bandwidth(), maxWidth / x.bandwidth()] 
+        const transform = d3.zoomIdentity.translate((-margin.left) * scaleExtent[0] + 7, 0).scale(scaleExtent[0])
         let z = d3.zoom()
             // we want the minumum zoom extent to be a factor such that all bars are at least the minWidht
-            .scaleExtent([minWidth / x.bandwidth(), maxWidth / x.bandwidth()])
+            .scaleExtent(scaleExtent)
         
         drawBars(data)
         svg.call(zoom)
@@ -53,16 +54,18 @@ export default function BarWithContext() {
             z.translateExtent(extent)
             .extent(extent)
             .on("zoom", zoomed)
-
-            svg.call(z);
+            
+            svg.call(z)
+            svg.call(z.transform, transform)
+            zoomed({ transform })
 
             /**
             * Handles post-zoom necessary side-effects
             */
-            function zoomed(event) {
+            function zoomed({ transform }) {
                 // update axis
                 const [min, max] = [margin.left, width - margin.right]
-                x.range([min, max].map(d => event.transform.applyX(d)));
+                x.range([min, max].map(d => transform.applyX(d)));
 
                 const left = firstIndexGreaterThan(data, min, d => x(d.x))
                 const right = firstIndexGreaterThan(data, max, d => x(d.x))

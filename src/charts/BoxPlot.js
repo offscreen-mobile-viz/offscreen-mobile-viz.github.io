@@ -23,12 +23,13 @@ export default function BoxPlot() {
     
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     yAxis.scale(yScale)
+    .tickFormat(d3.format('.2s'))
 
     const y_axis_g = svg.selectAll('.yAxis')
       .data([null])
       .join('g')
       .attr('class', 'yAxis')
-      .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
+      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
     
     y_axis_g.call(yAxis)
     const bins = data.map(mapBinWithStats)
@@ -38,7 +39,7 @@ export default function BoxPlot() {
      * @param {selection} g the group to adjust 
      */
     const updateRect = g => {
-      const start = side == 'right' ? 30 : width - 30 - 50
+      const start = side == 'right' ? 35 : width - 35 - 50
       g.select('rect')
       .each((d, i, nodes) => {
         const [q1, _, q3] = d.quartiles
@@ -56,7 +57,7 @@ export default function BoxPlot() {
      * @param {selection} g the group to adjust
      */
     const updateMed = g => {
-      const start = side == 'right' ? 30 : width - 30 - 50
+      const start = side == 'right' ? 35 : width - 35 - 50
       
       g.select('line.med')
       .attr('x1', start)
@@ -71,7 +72,7 @@ export default function BoxPlot() {
      * @param {selection} g the group to adjust 
      */
     const updateWhiskers = g => {
-      const mid = side == 'right' ? 30 + 25 : width - 30 - 25
+      const mid = side == 'right' ? 35 + 25 : width - 35 - 25
       
       g.select('.whisker.top')
       .attr('x1', mid)
@@ -94,7 +95,7 @@ export default function BoxPlot() {
       // if we shouldn't display outliers then skip this function
       if(!showOutliers) return
       
-      const mid = side == 'right' ? 30 + 25 : width - 30 - 25
+      const mid = side == 'right' ? 35 + 25 : width - 35 - 25
 
       g.each((d, i, gs) => {
         const outliers = d.outliers

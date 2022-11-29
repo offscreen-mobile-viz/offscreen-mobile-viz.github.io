@@ -43,19 +43,8 @@ export default function Panels({ data, chart }) {
 
     barchart.data(data)
     updateDomain()
-    
-    // Trigger a re-render for offscreen components
-    setLeft([])
-    setRight([])
   }, [data])
 
-  /**
-   * when left or right data changes, updateMaxBins
-   */
-  useEffect(() => {
-    updateMaxBin()
-  }, [left, right])
-  
   /**
    * updates the domain of the y-axis 
    * then propogates to dependencies
@@ -80,14 +69,18 @@ export default function Panels({ data, chart }) {
    * @param right - first index right slice (right shall be elems data[right] -> data[end])
    */
   function dispatch({ left, right }) {
-    setLeft(bin(data.slice(0, left)))
-    setRight(bin(data.slice(right)))
+    let l = bin(data.slice(0, left))
+    let r = bin(data.slice(right))
+
+    setLeft(l)
+    setRight(r)
+    updateMaxBin(l, r)
   }
 
   /**
    * Sets maxBinSize to be the max length of left and right bins.
    */
-  function updateMaxBin() {
+  function updateMaxBin(left, right) {
     setMaxBinSize(
       Math.max(
         d3.max(left, d => d.length),

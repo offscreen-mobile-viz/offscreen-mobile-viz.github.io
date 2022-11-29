@@ -12,42 +12,94 @@ export const Datasets = {
   DIAMONDS: 'diamonds',
 };
 
+/*
 const Accessors = {
-  [Datasets.CARS]: { x: d => d['Identification.ID'], y: d => +d['Fuel Information.City mpg']},
-  [Datasets.DIAMONDS]: { x: d => d['id'], y: d => +d['price']},
+  [Datasets.CARS]: { 
+    x: d => d['Identification.ID'], 
+    y: d => +d[Fields[Datasets.CARS]]
+  },
+  [Datasets.DIAMONDS]: { 
+    x: d => d['id'], 
+    y: d => +d[Fields[Datasets.CARS]]
+  },
+}
+
+const Fields = {
+  [Datasets.CARS]: 'Engine Information.Engine Statistics.Horsepower',
+  //[Datasets.CARS]: 'Fuel Information.City mpg',
+  [Datasets.DIAMONDS]: 'price',
+}
+*/
+
+const Fields = {
+  [Datasets.CARS]: {
+    x: 'Identification.ID',
+    default: 'Engine Information.Engine Statistics.Horsepower',
+    fields: []
+  }, 
+  [Datasets.DIAMONDS]: {
+    x: 'id',
+    default: 'price',
+    fields: []
+  }, 
 }
 
 function App() {
-  const [data, setData] = useState([])
   const [datasets, setDatasets] = useState()
+  const [dataset, setDataset] = useState(Datasets.CARS)
+  const [field, setField] = useState('Engine Information.Engine Statistics.Horsepower')
   const [chart, setChart] = useState(ChartType.DOTPLOT40)
+  const [data, setData] = useState([])
 
   useEffect(() => {
     async function fetch() {
       const datasets = {}
       for(let dataset of Object.values(Datasets)) {
-        const { x, y } = Accessors[dataset]
-        let data = await d3.csv(`/data/${dataset}.csv`, (d, i) => {
-          return { x: x(d), y: y(d), id: i }
-        })
+        let data = await d3.csv(`/data/${dataset}.csv`)
+
+        // Only keep columns that have numerical contents
+        Fields[dataset].fields = data.columns.filter(f => +data[0][f])
+
         datasets[dataset] = d3.shuffle(data)
       }
       // set populated data
       setDatasets(datasets)
-      // default to Cars first
-      setData(datasets[Datasets.CARS])
     }
-    
+
     fetch()
   }, [])
+
+  useEffect(() => {
+    if( !datasets || !dataset || !field) {
+      return
+    }
+
+    const { x } = Fields[dataset]
+    setData(
+      datasets[dataset].map((d, i) => {
+        return {
+          x: d[x],
+          y: +d[field],
+          id: i
+        }
+      })
+    )
+  }, [datasets, dataset, field])
 
   const handleChartChange = e => {
     const chart = e.target.value
     setChart(chart)
   }
+
   const handleDataChange = e => {
     const dataset = e.target.value
-    setData(datasets[dataset])
+    setDataset(dataset)
+    setField(Fields[dataset].default)
+  }
+
+  const handleFieldChange = e => {
+    const field = e.target.value
+    setField(field)
   }
 
   return (
@@ -65,6 +117,11 @@ function App() {
             <select name="data selector" onChange={handleDataChange}>
               <option value={Datasets.CARS}>Cars</option>
               <option value={Datasets.DIAMONDS}>Diamonds</option>
+            </select>
+            <select name="field selector" value={field} onChange={handleFieldChange}>
+              {Fields[dataset].fields && Fields[dataset].fields.map((f, i) => {
+                return <option key={i} value={f} >{f}</option>
+              })}
             </select>
           </div>
           <Panels data={data} chart={chart}/>

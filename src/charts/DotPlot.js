@@ -23,12 +23,13 @@ export default function DotPlot() {
     
     const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
     axis.scale(yScale)
+    .tickFormat(d3.format(".2s"))
     
     const axis_g = svg.selectAll('.axis')
       .data([null])
       .join('g')
       .attr('class', 'axis')
-      .attr('transform', `translate(${side == 'right' ? 25 : width - 25}, 0)`);
+      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
 
     axis_g.call(axis)
 
@@ -41,6 +42,8 @@ export default function DotPlot() {
       const DOT_R = 5,
             DOT_D = 2 * DOT_R,
             DOT_SEP_X = DOT_D + 3;
+      const maxRows = Math.floor(width / DOT_SEP_X) - 2
+      dotsPerBin = Math.max(Math.ceil(maxBinSize / pointsPerDot/ maxRows), 5)
 
       dotBins.each((datum, i, bins) => {
         const BIN_HEIGHT = (yScale(datum.x0) - yScale(datum.x1));
@@ -59,9 +62,9 @@ export default function DotPlot() {
         })
         .attr('cx', (_, i) => {
           if(side == 'right') {
-            return (Math.floor(i / dotsPerBin) * DOT_SEP_X) + 35 
+            return (Math.floor(i / dotsPerBin) * DOT_SEP_X) + 40 
           } else {
-            return (width - 35 - Math.floor(i / dotsPerBin) * DOT_SEP_X)
+            return (width - 40 - Math.floor(i / dotsPerBin) * DOT_SEP_X)
           }
         })
       }
