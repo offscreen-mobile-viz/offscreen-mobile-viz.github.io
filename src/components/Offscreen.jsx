@@ -34,9 +34,14 @@ export const ChartType = {
   BOXPLOT: 'boxplot',
 
   /**
-   * VIOLINPLO - a bin based ViolinPlot
+   * VIOLINPLOT - a bin based ViolinPlot
    */
-  VIOLINPLOT: 'violinplot'
+  VIOLINPLOT: 'violinplot',
+
+  /**
+   *  CONTROL - no offscreen chart
+   */
+  CONTROL: 'control',
 };
 
 /**
@@ -80,9 +85,14 @@ export default function Offscreen({ data, side, type, dimensions, domain, maxBin
    * This should handle re-binning and data manipulation requirements
    */
   useEffect(() => {
-    if (!data || !type)
+    if (!data || !type) {
       return
-
+    }
+    if(type === ChartType.CONTROL) {
+      d3.select(chartRef.current).selectAll('*').remove()
+      return
+    }
+      
     Chart[type]
       .data(data)
       .side(side)

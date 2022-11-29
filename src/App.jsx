@@ -113,6 +113,7 @@ function App() {
               <option value={ChartType.HISTOGRAM}>Histogram</option>
               <option value={ChartType.BOXPLOT}>Box Plot</option>
               <option value={ChartType.VIOLINPLOT}>Violin Plot</option>
+              <option value={ChartType.CONTROL}>Control</option>
             </select>
             <select name="data selector" onChange={handleDataChange}>
               <option value={Datasets.CARS}>Cars</option>
