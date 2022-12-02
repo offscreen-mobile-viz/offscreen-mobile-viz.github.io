@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import getSvg from './getSvg'
+import useSvg from './useSvg'
+import useScale from './useScale'
 
 export default function DotPlot() {
   let data,
@@ -14,25 +15,10 @@ export default function DotPlot() {
 
     const { width, height } = dimensions
 
-    const yScale = d3.scaleLinear()
-      .domain(domain)
-      .range([height - 15, 15])
-
     // using abstracted getSvg to maintain idempotency
-    const svg = getSvg(selection, 'dotplot', side)
+    const svg = useSvg(selection, 'dotplot', side)
+    const yScale = useScale(svg, domain, height, width, side)
     
-    const axis = side == 'left' ? d3.axisRight() : d3.axisLeft()
-    axis.scale(yScale)
-    .tickFormat(d3.format(".2s"))
-    
-    const axis_g = svg.selectAll('.axis')
-      .data([null])
-      .join('g')
-      .attr('class', 'axis')
-      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
-
-    axis_g.call(axis)
-
     // TODO add consideration and scaling for max bins
     const dotBins = svg.selectAll('.dotBin')
       .data(data)

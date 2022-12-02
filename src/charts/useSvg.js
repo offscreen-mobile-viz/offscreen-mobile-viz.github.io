@@ -8,7 +8,7 @@
  * @param {string} side 
  * @returns 
  */
-export default function getSvg(selection, name, side) {
+export default function useSvg(selection, name, side) {
     return selection.selectAll('g')
       .data([null])
       .join(

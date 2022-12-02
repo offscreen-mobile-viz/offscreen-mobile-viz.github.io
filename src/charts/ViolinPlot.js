@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import getSvg from './getSvg'
+import useSvg from './useSvg'
+import useScale from './useScale'
 
 export default function ViolinPlot() {
   let data,
@@ -12,24 +13,9 @@ export default function ViolinPlot() {
 
     const { width, height } = dimensions
 
-    const yScale = d3.scaleLinear()
-      .domain(domain)
-      .range([height - 15, 15])
-
     // using abstracted getSvg to maintain idempotency
-    const svg = getSvg(selection, 'violinplot', side)
-    
-    const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
-    yAxis.scale(yScale)
-    yAxis.tickFormat(d3.format('0.2s'))
-
-    const y_axis_g = svg.selectAll('.yAxis')
-      .data([null])
-      .join('g')
-      .attr('class', 'yAxis')
-      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
-    
-    y_axis_g.call(yAxis)
+    const svg = useSvg(selection, 'violinplot', side)
+    const yScale = useScale(svg, domain, height, width, side)
 
     const xScale = d3.scaleLinear()
     .domain([0, maxBinSize])

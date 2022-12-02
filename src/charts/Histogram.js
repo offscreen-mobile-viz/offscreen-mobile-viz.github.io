@@ -1,39 +1,27 @@
 import * as d3 from 'd3'
-import getSvg from './getSvg'
+import useSvg from './useSvg'
+import useScale from './useScale'
+
 export default function Histogram() {
   let data,
       dimensions,
       side,
-      domain, maxBinSize
+      domain, 
+      maxBinSize
 
   const my = (selection) => {
     const { width, height } = dimensions
 
-    const yScale = d3.scaleLinear()
-      .domain(domain)
-      .range([height - 15, 15])
-
     // using abstracted getSvg to maintain idempotency
-    const svg = getSvg(selection, 'histogram', side)
+    const svg = useSvg(selection, 'histogram', side)
       .style('position', 'relative')
+    const yScale = useScale(svg, domain, height, width, side)
     
-    const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
-    yAxis.scale(yScale)
-    yAxis.tickFormat(d3.format('.2s'))
-
-    const y_axis_g = svg.selectAll('.yAxis')
-      .data([null])
-      .join('g')
-      .attr('class', 'yAxis')
-      .attr('transform', `translate(${side == 'right' ? 30 : width - 30}, 0)`);
-    
-    y_axis_g.call(yAxis)
-
     const xScale = d3.scaleLinear()
       .domain([0, maxBinSize]) // max is data.length / 2
       .range([0, width - 50])
 
-    const click = (e, d) => {
+    const click = (_, d) => {
       d3.selectAll('.tip')
       .attr('visibility', 'hidden')
 
@@ -80,7 +68,7 @@ export default function Histogram() {
     }
 
     let i = -1
-    const bars = svg.selectAll('.bar')
+    svg.selectAll('.bar')
       .data(data, d => d.id || (d.id = ++i))
       .join(
         enter => {
