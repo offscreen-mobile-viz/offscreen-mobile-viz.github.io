@@ -50,7 +50,11 @@ export default function Panels({ data, chart }) {
    * then propogates to dependencies
    */
   function updateDomain() {
-    const domain = [0, d3.max(data, d => d.y)] 
+
+    /**
+     * this *nices* the domain for all consumers downstream (ensures nice bin and y-scale domain.)
+     */
+    const domain = d3.scaleLinear().domain([0, d3.max(data, d => d.y)]).nice(8).domain()
     
     bin.domain(domain)
     barchart.domain(domain)

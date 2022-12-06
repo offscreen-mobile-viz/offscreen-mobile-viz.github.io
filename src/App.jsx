@@ -3,51 +3,36 @@ import './app.scss'
 import Panels from './components/Panels'
 import { ChartType } from './components/Offscreen'
 import { useState, useEffect } from 'react'
-import { Orientation, DeviceOrientation } from './utils/screen-orientation/ScreenOrientation'
+import { Orientation, DeviceOrientation } from './utils/screenOrientation/ScreenOrientation'
 
 import * as d3 from 'd3'
+import generateUserStudy from './utils/userStudy/generateUserStudy'
 
 export const Datasets = {
   CARS: 'cars',
+  WEATHER: 'weather',
   DIAMONDS: 'diamonds',
 };
 
-/*
-const Accessors = {
-  [Datasets.CARS]: { 
-    x: d => d['Identification.ID'], 
-    y: d => +d[Fields[Datasets.CARS]]
-  },
-  [Datasets.DIAMONDS]: { 
-    x: d => d['id'], 
-    y: d => +d[Fields[Datasets.CARS]]
-  },
-}
-
-const Fields = {
-  [Datasets.CARS]: 'Engine Information.Engine Statistics.Horsepower',
-  //[Datasets.CARS]: 'Fuel Information.City mpg',
-  [Datasets.DIAMONDS]: 'price',
-}
-*/
-
-const Fields = {
+export const Fields = {
   [Datasets.CARS]: {
-    x: 'Identification.ID',
-    default: 'Engine Information.Engine Statistics.Horsepower',
-    fields: []
+    default: 'mpg-city',
+    fields: ['mpg-city', 'mpg-highway', 'horsepower', 'torque'],
+  }, 
+  [Datasets.WEATHER]: {
+    default: 'avg-temp',
+    fields: ['avg-temp', 'max-temp', 'min-temp', 'wind-speed'],
   }, 
   [Datasets.DIAMONDS]: {
-    x: 'id',
     default: 'price',
-    fields: []
+    fields: ['price', 'carat'],
   }, 
 }
 
 function App() {
   const [datasets, setDatasets] = useState()
   const [dataset, setDataset] = useState(Datasets.CARS)
-  const [field, setField] = useState('Engine Information.Engine Statistics.Horsepower')
+  const [field, setField] = useState('mpg-city')
   const [chart, setChart] = useState(ChartType.DOTPLOT40)
   const [data, setData] = useState([])
 
@@ -56,9 +41,6 @@ function App() {
       const datasets = {}
       for(let dataset of Object.values(Datasets)) {
         let data = await d3.csv(`/data/${dataset}.csv`)
-
-        // Only keep columns that have numerical contents
-        Fields[dataset].fields = data.columns.filter(f => +data[0][f])
 
         datasets[dataset] = d3.shuffle(data)
       }
@@ -69,18 +51,19 @@ function App() {
     fetch()
   }, [])
 
+  // triggered when a dropdown changes that requires a data-change side-effect
   useEffect(() => {
     if( !datasets || !dataset || !field) {
       return
     }
 
-    const { x } = Fields[dataset]
+    generateUserStudy(20);
+
     setData(
-      datasets[dataset].map((d, i) => {
+      datasets[dataset].map(d => {
         return {
-          x: d[x],
+          x: d['index'],
           y: +d[field],
-          id: i
         }
       })
     )
@@ -116,8 +99,9 @@ function App() {
               <option value={ChartType.CONTROL}>Control</option>
             </select>
             <select name="data selector" onChange={handleDataChange}>
-              <option value={Datasets.CARS}>Cars</option>
-              <option value={Datasets.DIAMONDS}>Diamonds</option>
+              {Object.values(Datasets).map((dataset, i) => {
+                return <option key={i} value={dataset}>{dataset}</option>
+              })}
             </select>
             <select name="field selector" value={field} onChange={handleFieldChange}>
               {Fields[dataset].fields && Fields[dataset].fields.map((f, i) => {

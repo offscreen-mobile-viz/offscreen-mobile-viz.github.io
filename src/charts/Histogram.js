@@ -25,7 +25,7 @@ export default function Histogram() {
       d3.selectAll('.tip')
       .attr('visibility', 'hidden')
 
-      svg.select(`#tip-${d.id}`)
+      svg.select(`#tip-${d.x}`)
       .attr('visibility', 'visible')
     }
 
@@ -53,11 +53,11 @@ export default function Histogram() {
           x = tooShort ? barWidth + 30 + (width - barWidth - 30) / 2 : barWidth + 20;
         }
 
-        svg.selectAll(`#tip-${d.id}`)
+        svg.selectAll(`#tip-${d.x}`)
           .data([d])
           .join('text')
           .attr('class', 'tip')
-          .attr('id', `tip-${d.id}`)
+          .attr('id', `tip-${d.x}`)
           .attr('text-anchor', tooShort ? 'middle' : textAnchor)
           .attr('x', x)
           .attr('y', y)
@@ -67,9 +67,8 @@ export default function Histogram() {
       })
     }
 
-    let i = -1
     svg.selectAll('.bar')
-      .data(data, d => d.id || (d.id = ++i))
+      .data(data, d => d.x)
       .join(
         enter => {
           enter
@@ -92,9 +91,6 @@ export default function Histogram() {
 
   my.data = function(_) {
     return arguments.length ? (data = _, my) : data
-  }
-  my.bin = function(_) {
-    return arguments.length ? (bin = _, my) : bin
   }
   my.dimensions = function(_) {
     return arguments.length ? (dimensions = _, my) : dimensions

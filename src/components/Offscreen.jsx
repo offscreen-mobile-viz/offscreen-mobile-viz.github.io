@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 import { useRef, useEffect } from "react"
 
 import BoxPlot from '../charts/BoxPlot';
+import Control from '../charts/Control';
 import DotPlot from '../charts/DotPlot'
 import Histogram from '../charts/Histogram';
 import ViolinPlot from '../charts/ViolinPlot';
@@ -64,6 +65,7 @@ export default function Offscreen({ data, side, type, dimensions, domain, maxBin
     [ChartType.HISTOGRAM]: Histogram(),
     [ChartType.BOXPLOT]: BoxPlot(),
     [ChartType.VIOLINPLOT]: ViolinPlot(),
+    [ChartType.CONTROL]: Control(),
   }
 
   const chartRef = useRef(null)
@@ -86,10 +88,6 @@ export default function Offscreen({ data, side, type, dimensions, domain, maxBin
    */
   useEffect(() => {
     if (!data || !type) {
-      return
-    }
-    if(type === ChartType.CONTROL) {
-      d3.select(chartRef.current).selectAll('*').remove()
       return
     }
       

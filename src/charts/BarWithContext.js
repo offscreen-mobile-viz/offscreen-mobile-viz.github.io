@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 
 export default function BarWithContext() {
-    let data = [],       // arrrives in format { x, y, id }
+    let data = [],       // arrrives in format { x, y }
         dispatch,
         domain,
         dimensions
@@ -25,7 +25,7 @@ export default function BarWithContext() {
         
         const drawBars = data => {
             svg.selectAll('.bar')
-                .data(data, d => d.id)
+                .data(data, d => d.x)
                 .join('rect')
                 .attr('class', 'bar')
                 .attr('stroke', 'midnightblue')

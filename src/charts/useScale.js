@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 
 export default function useScale(svg, domain, height, width, side) {
     const yScale = d3.scaleLinear()
-    .domain(domain)
+    .domain(domain).nice()
     .range([height - 15, 15])
 
     const yAxis = side == 'left' ? d3.axisRight() : d3.axisLeft()
