@@ -22,7 +22,6 @@ export default function Histogram() {
       .range([0, width - 50])
 
     const click = (_, d) => {
-      console.log(d, d.x0)
       d3.selectAll('.tip')
       .attr('visibility', 'hidden')
 
