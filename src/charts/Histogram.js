@@ -22,10 +22,11 @@ export default function Histogram() {
       .range([0, width - 50])
 
     const click = (_, d) => {
+      console.log(d, d.x0)
       d3.selectAll('.tip')
       .attr('visibility', 'hidden')
 
-      svg.select(`#tip-${d.x}`)
+      svg.select(`#tip-${d.x0}`)
       .attr('visibility', 'visible')
     }
 
@@ -53,11 +54,11 @@ export default function Histogram() {
           x = tooShort ? barWidth + 30 + (width - barWidth - 30) / 2 : barWidth + 20;
         }
 
-        svg.selectAll(`#tip-${d.x}`)
+        svg.selectAll(`#tip-${d.x0}`)
           .data([d])
           .join('text')
           .attr('class', 'tip')
-          .attr('id', `tip-${d.x}`)
+          .attr('id', `tip-${d.x0}`)
           .attr('text-anchor', tooShort ? 'middle' : textAnchor)
           .attr('x', x)
           .attr('y', y)
