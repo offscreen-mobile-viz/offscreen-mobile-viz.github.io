@@ -12,6 +12,7 @@ export const Datasets = {
   CARS: 'cars',
   WEATHER: 'weather',
   DIAMONDS: 'diamonds',
+  RANDOM: 'random',
 };
 
 export const Fields = {
@@ -27,6 +28,10 @@ export const Fields = {
     default: 'price',
     fields: ['price', 'carat'],
   }, 
+  [Datasets.RANDOM]: {
+    default: 'x',
+    fields: ['x', 'y'],
+  },
 }
 
 function App() {

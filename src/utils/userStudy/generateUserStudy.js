@@ -6,19 +6,20 @@ import * as d3 from 'd3';
 import { ChartType } from "../../components/Offscreen";
 import { Fields, Datasets } from "../../App";
 
-export default function generateUserStudy(numUsers = 10, questionsPerUser = 10) {
+export default function generateUserStudy(numUsers = 20) {
     let chartTypes = [...Object.values(ChartType)];
 
-    // generate all possible questions
+    // generate all possible questions, in the form of a dictionary
+    // where the key is the chart type, and the value is a list of questions for that chart type
     let userStudy = {};
     // go through each chart type, and each dataset, and each field
-    for (let chartType of Object.values(ChartType)){
+    for (let chartType of chartTypes){
         userStudy[chartType] = [];
         for (let dataset of Object.values(Datasets)){
             for (let field of Fields[dataset].fields){ 
                 // add a question to the user study
                 userStudy[chartType].push({
-                    chartType: chartType,
+                    //chartType: chartType,
                     dataset: dataset,
                     field: field
                 })
@@ -27,19 +28,28 @@ export default function generateUserStudy(numUsers = 10, questionsPerUser = 10) 
     }
 
     // create a list of users
-    let users = [];
+    let users = {};
+
+    // for each user, create a list of questions
     for (let i = 0; i < numUsers; i++){
-        let questions = [];
+        let questions = {};
+
+        // set of used fields
+        let usedFields = new Set();
 
         // add a random question to use from each chart type
         for (let chartType of chartTypes) {
             // get a random question from the user study
             userStudy[chartType] = d3.shuffle(userStudy[chartType]);
+            let j = -1;
+            while(usedFields.has(userStudy[chartType][++j].field));
 
-            questions.push(userStudy[chartType][0]);
+            //questions.push(userStudy[chartType][j]);
+            questions[chartType] = userStudy[chartType][j];
+            usedFields.add(userStudy[chartType][j].field);
         }
 
-        let k = -1, h = 0;
+        /*let k = -1, h = 0;
         chartTypes = d3.shuffle(chartTypes);
         while(questions.length < questionsPerUser){
             // if we have gone through all the chart types, shuffle them again
@@ -57,14 +67,20 @@ export default function generateUserStudy(numUsers = 10, questionsPerUser = 10) 
 
             // if the question is not already in the list of questions, add it
             if(!questions.includes(question)){
-                questions.push(question);
+                questions.push({ i: questions.length, ...question });
             }
-        };
+        };*/
         
         // add questions to the user array
-        users.push(questions);
+        /*
+        users.push({
+            user: 100 + i, 
+            questions
+        });
+        */
+        users[100 + i] = questions
     }
 
-    // print the users
-    console.log(users);
+    // convert the user study to a csv
+    console.log(JSON.stringify(users, null, 2))
 }
