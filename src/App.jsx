@@ -62,8 +62,6 @@ function App() {
       return
     }
 
-    generateUserStudy(20);
-
     setData(
       datasets[dataset].map(d => {
         return {

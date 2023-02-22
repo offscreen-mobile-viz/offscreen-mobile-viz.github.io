@@ -18,12 +18,13 @@ export default function ViolinPlot() {
     const yScale = useScale(svg, domain, height, width, side)
 
     const xScale = d3.scaleLinear()
+    // the largest violin plot should be 1/2 the width of the chart
     .domain([0, maxBinSize])
     .range([0, width - 15])
 
     const line = d3.area()
     .curve(d3.curveBasis)
-    .y(d => yScale(d.x1))
+    .y(d => yScale(d.x0))
     .x0(d => xScale(d.length))
     .x1(d => -xScale(d.length))
   
@@ -36,7 +37,7 @@ export default function ViolinPlot() {
     const drawViolin = violin => {
       violin.datum(d => { 
         return d3.bin()
-        .thresholds(15)
+        .thresholds(10)
         .value(d => d.y)
         .domain([d.x0, d.x1])(d)
       })
