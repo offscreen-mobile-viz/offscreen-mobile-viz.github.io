@@ -98,10 +98,7 @@ function App() {
             {chart === ChartType.DOTPLOT_N &&
                 <>
                   <label htmlFor="myRange" style={{width: '60px', textAlign: 'right'}}>n: {n}</label>
-                  {/* arrows to increment/decrement n */}
-                  <button style={{marginRight: 5}} onClick={() => setN(n => Math.min(500, n + 10))}>+</button>
-                  <button style={{margin: 0}} onClick={() => setN(n => Math.max(10, n - 10))}>-</button>
-                  <input type="range" min="10" max="500" step="10" value={n} className="slider" id="myRange" onChange={e => setN(e.target.value)}/>
+                  <input type="range" min="10" max="250" step="10" value={n} className="slider" id="myRange" onChange={e => setN(e.target.value)}/>
                 </>
             }
             {/* selector for chart type */}
