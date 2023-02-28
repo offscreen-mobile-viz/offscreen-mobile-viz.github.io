@@ -23,6 +23,11 @@ export const ChartType = {
    * DOTPLOT100 - a DotPlot chart with 100 points per dot
    */
   DOTPLOT100: 'dotplot-100',
+
+  /**
+  * DOTPLOT_N - a DotPlot chart with n points per dot
+  */
+  DOTPLOT_N: 'dotplot-n',
   
   /**
    * HISTOGRAM - a Histogram
@@ -50,7 +55,7 @@ export const ChartType = {
  *  
  *  side - the side to be displayed 'left' | 'right'
  */
-export default function Offscreen({ data, side, type, dimensions, domain, maxBinSize }) {
+export default function Offscreen({ data, side, type, dimensions, domain, maxBinSize, n }) {
   /**
    * chart will hold all possible chart closures based on a specified type.
    * 
@@ -60,8 +65,10 @@ export default function Offscreen({ data, side, type, dimensions, domain, maxBin
    * chart[type] will return the desired type of chart.
    */
   const Chart = {
-    [ChartType.DOTPLOT40]: DotPlot(),
+    [ChartType.DOTPLOT40]: DotPlot().pointsPerDot(40),
     [ChartType.DOTPLOT100]: DotPlot().pointsPerDot(100),
+    [ChartType.DOTPLOT_N]: DotPlot().pointsPerDot(n),
+    [ChartType.DOTPLOT]: DotPlot().pointsPerDot(100),
     [ChartType.HISTOGRAM]: Histogram(),
     [ChartType.BOXPLOT]: BoxPlot(),
     [ChartType.VIOLINPLOT]: ViolinPlot(),
@@ -97,8 +104,13 @@ export default function Offscreen({ data, side, type, dimensions, domain, maxBin
       .dimensions(dimensions)
       .domain(domain)
       .maxBinSize(maxBinSize)
+
+    if (type === ChartType.DOTPLOT_N) {
+      Chart[type].pointsPerDot(n)
+    }
+
     d3.select(chartRef.current).call(Chart[type])
-  }, [data, type])
+  }, [data, type, n])
 
 
   return (

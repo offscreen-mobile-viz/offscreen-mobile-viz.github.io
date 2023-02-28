@@ -8,7 +8,7 @@ import BarWithContext from '../charts/BarWithContext'
 import { useRef, useState, useEffect } from 'react'
 
 
-export default function Panels({ data, chart }) {
+export default function Panels({ data, chart, n }) {
   // get bounding width and height of the browser
   let { width, height } = d3.select('body').node().getBoundingClientRect()
   // knock off 70px to account for topbox (or 0 if results in a negative height)
@@ -102,6 +102,7 @@ export default function Panels({ data, chart }) {
         dimensions={offscreenDimensions}
         domain={domain}
         maxBinSize={maxBinSize}
+        n={n}
       />
       <svg ref={barchartRef} width={barChartDimensions.width} height={barChartDimensions.height} />
       <Offscreen
@@ -111,6 +112,7 @@ export default function Panels({ data, chart }) {
         dimensions={offscreenDimensions}
         domain={domain}
         maxBinSize={maxBinSize}
+        n={n}
       />
     </div>
   )

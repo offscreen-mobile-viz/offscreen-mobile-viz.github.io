@@ -40,6 +40,7 @@ function App() {
   const [field, setField] = useState('mpg-city')
   const [chart, setChart] = useState(ChartType.DOTPLOT40)
   const [data, setData] = useState([])
+  const [n, setN] = useState(40)
 
   useEffect(() => {
     async function fetch() {
@@ -93,14 +94,27 @@ function App() {
       <Orientation orientation='landscape'>
         <div>
           <div className='topbar'>
+            {/* slider for dotplot-n, and a label for it */}
+            {chart === ChartType.DOTPLOT_N &&
+                <>
+                  <label htmlFor="myRange" style={{width: '60px', textAlign: 'right'}}>n: {n}</label>
+                  {/* arrows to increment/decrement n */}
+                  <button style={{marginRight: 5}} onClick={() => setN(n => n + 1)}>+</button>
+                  <button style={{margin: 0}} onClick={() => setN(n => n - 1)}>-</button>
+                  <input type="range" min="1" max="1000" value={n} className="slider" id="myRange" onChange={e => setN(e.target.value)}/>
+                </>
+            }
+            {/* selector for chart type */}
             <select name="chart selector" onChange={handleChartChange}>
               <option value={ChartType.DOTPLOT40}>DotPlot 40</option>
               <option value={ChartType.DOTPLOT100}>DotPlot 100</option>
+              <option value={ChartType.DOTPLOT_N}>DotPlot n</option>
               <option value={ChartType.HISTOGRAM}>Histogram</option>
               <option value={ChartType.BOXPLOT}>Box Plot</option>
               <option value={ChartType.VIOLINPLOT}>Violin Plot</option>
               <option value={ChartType.CONTROL}>Control</option>
             </select>
+            {/* selector for dataset */}
             <select name="data selector" onChange={handleDataChange}>
               {Object.values(Datasets).map((dataset, i) => {
                 return <option key={i} value={dataset}>{dataset}</option>
@@ -112,7 +126,7 @@ function App() {
               })}
             </select>
           </div>
-          <Panels data={data} chart={chart}/>
+          <Panels data={data} chart={chart} n={n}/>
         </div>
       </Orientation>
 
