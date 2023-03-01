@@ -48,7 +48,7 @@ function App() {
       for(let dataset of Object.values(Datasets)) {
         let data = await d3.csv(`/data/${dataset}.csv`)
 
-        datasets[dataset] = d3.shuffle(data)
+        datasets[dataset] = data
       }
       // set populated data
       setDatasets(datasets)
@@ -66,7 +66,7 @@ function App() {
     setData(
       datasets[dataset].map(d => {
         return {
-          x: d['index'],
+          x: +d['index'],
           y: +d[field],
         }
       })
