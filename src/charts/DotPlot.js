@@ -19,13 +19,18 @@ export default function DotPlot() {
     const svg = useSvg(selection, 'dotplot', side)
     const yScale = useScale(svg, domain, height, width, side)
 
+    // get the min and max of the data
+    const [min, max] = getMinMax(data)
+    const maxDistance = Math.abs(max - min)
+    // opacity scale is a linear scale that maps the distance of a dot from the edge of the screen to an opacity value
+    const opacityScale = d3.scaleLinear()
+      .domain([0, maxDistance])
+      .range([1, 0])
+
     const dotBins = svg.selectAll('.dotBin')
       .data(data)
       .join('g')
       .attr('class', 'dotBin')
-
-    // if pointsPerDot is not set, dynamically set it
-    pointsPerDot = pointsPerDot || maxBinSize / 100
 
     const DOT_R = 5,
       DOT_D = 2 * DOT_R,
@@ -58,20 +63,26 @@ export default function DotPlot() {
           })
       }
 
+      // get the opacities for the dots
+      let opacities = getOpacityDots(datum, side, pointsPerDot, opacityScale, min, max)
+      console.log(side, i, opacities)
+
       d3.select(bins.at(i))
         .selectAll('.dot')
-        .data(Array(Math.ceil(datum.length / pointsPerDot)))
+        .data(opacities)
         .join(
           enter => enter.append('circle')
           .attr('class', 'dot')
           .attr('r', 5)
           .attr('fill', 'skyblue')
+          .attr('fill-opacity', d => d)
           .attr('stroke', 'black')
           .call(moveDots)
           ,
           update => update.call(update => {
             update
               .call(moveDots)
+              .attr('fill-opacity', d => d)
           }),
           exit => exit.remove()
         )
@@ -97,4 +108,68 @@ export default function DotPlot() {
     return arguments.length ? (maxBinSize = _, my) : maxBinSize
   }
   return my
+}
+
+/**
+  * This function takes in a datum and returns an array of objects that represent the opacity of each dot in the bin.
+  * The opacity of each dot is determined by the average distance of the dots in the bin offscreen.
+  */
+function getOpacityDots(data, side, pointsPerDot, opacityScale, min, max) {
+  if(data.length == 0) return []
+  
+  const opacities = []
+  opacities.x0 = data.x0
+  opacities.x1 = data.x1
+
+  let i = -1,
+      bin = 0,
+      sum = 0, count = 0,
+      n, avg;
+
+  while(++i < data.length) {
+    // if this point marks the end of a bin, then we can add the average distance of the dots in the bin to the opacities array
+    if(i % pointsPerDot == 0 && i != 0) {
+      // get the average distance of the dots in the bins
+      avg = sum / count
+
+      // add the average distance to the opacities array (to the end if we are on the right side, to the beginning if we are on the left side)
+      if(side == 'right') {
+        opacities.push(opacityScale(avg))
+      } else {
+        opacities.unshift(opacityScale(avg))
+      }
+
+      sum = 0
+      count = 0
+    }
+    let dist = Math.abs(data[i].x - (side == 'right' ? min : max))
+    sum += dist
+    ++count
+  }
+
+  // add the last bin
+  avg = sum / count
+  if(side == 'right') {
+    opacities.push(opacityScale(avg))
+  } else {
+    opacities.unshift(opacityScale(avg))
+  }
+
+  return opacities
+}
+
+/**
+  * gets the min and max of the data.
+  * Because the data comes in as bins in which each bin is in ascending order, we can just get the first and last elements of each bin.
+  * This is much faster than sorting the data and then getting the min and max.
+  */
+function getMinMax(data) {
+  const mins = data.map(d => d[0])
+  .filter(d => d != undefined)
+  .map(d => d.x)
+  const maxs = data.map(d => d[d.length - 1])
+  .filter(d => d != undefined)
+  .map(d => d.x)
+
+  return [d3.min(mins), d3.max(maxs)]
 }
