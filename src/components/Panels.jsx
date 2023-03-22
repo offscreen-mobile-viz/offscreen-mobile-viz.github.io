@@ -3,6 +3,7 @@ import './panels.scss'
 import * as d3 from 'd3'
 
 import Offscreen from './Offscreen'
+import Context from './Context'
 import BarWithContext from '../charts/BarWithContext'
 
 import { useRef, useState, useEffect } from 'react'
@@ -10,9 +11,10 @@ import { useRef, useState, useEffect } from 'react'
 
 export default function Panels({ data, chart, n }) {
   // get bounding width and height of the browser
-  let { width, height } = d3.select('body').node().getBoundingClientRect()
+  let [width, height] = [window.innerWidth, window.innerHeight]
   // knock off 70px to account for topbox (or 0 if results in a negative height)
-  height = Math.max(height - 70, 0)
+  // then another 70 for the context chart
+  height = Math.max(height - 140, 0)
 
   const offscreenDimensions = { width: width * 0.15, height } 
   const barChartDimensions = { width: width - (2 * offscreenDimensions.width), height }
@@ -32,6 +34,9 @@ export default function Panels({ data, chart, n }) {
   const [left, setLeft] = useState([])
   const [right, setRight] = useState([])
 
+  const [leftBound, setLeftBound] = useState(0)
+  const [rightBound, setRightBound] = useState(0)
+
   /**
    * When the dataset changes, set the barchart's data, update the yScale domain, 
    * then trigger a re-render for offscreen components by updating left and right
@@ -50,7 +55,6 @@ export default function Panels({ data, chart, n }) {
    * then propogates to dependencies
    */
   function updateDomain() {
-
     /**
      * this *nices* the domain for all consumers downstream (ensures nice bin and y-scale domain.)
      */
@@ -73,6 +77,13 @@ export default function Panels({ data, chart, n }) {
    * @param right - first index right slice (right shall be elems data[right] -> data[end])
    */
   function dispatch({ left, right }) {
+    if(left == undefined || right == undefined) {
+      return
+    } 
+    
+    setLeftBound(left)
+    setRightBound(right)
+
     let l = bin(data.slice(0, left))
     let r = bin(data.slice(right))
 
@@ -94,26 +105,29 @@ export default function Panels({ data, chart, n }) {
   }
 
   return (
-    <div className='panels' >
-      <Offscreen
-        data={left}
-        side='left'
-        type={chart}
-        dimensions={offscreenDimensions}
-        domain={domain}
-        maxBinSize={maxBinSize}
-        n={n}
-      />
-      <svg ref={barchartRef} width={barChartDimensions.width} height={barChartDimensions.height} />
-      <Offscreen
-        data={right}
-        side='right'
-        type={chart}
-        dimensions={offscreenDimensions}
-        domain={domain}
-        maxBinSize={maxBinSize}
-        n={n}
-      />
+    <div className='wrapper'>
+      <Context data={data} dimensions={{ width: barChartDimensions.width, height: 90 }} left={leftBound} right={rightBound} />
+      <div className='panels'>
+        <Offscreen
+          data={left}
+          side='left'
+          type={chart}
+          dimensions={offscreenDimensions}
+          domain={domain}
+          maxBinSize={maxBinSize}
+          n={n}
+        />
+        <svg ref={barchartRef} width={barChartDimensions.width} height={barChartDimensions.height} />
+        <Offscreen
+          data={right}
+          side='right'
+          type={chart}
+          dimensions={offscreenDimensions}
+          domain={domain}
+          maxBinSize={maxBinSize}
+          n={n}
+        />
+      </div>
     </div>
   )
 }

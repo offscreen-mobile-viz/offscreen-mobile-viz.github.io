@@ -65,7 +65,6 @@ export default function DotPlot() {
 
       // get the opacities for the dots
       let opacities = getOpacityDots(datum, side, pointsPerDot, opacityScale, min, max)
-      console.log(side, i, opacities)
 
       d3.select(bins.at(i))
         .selectAll('.dot')
