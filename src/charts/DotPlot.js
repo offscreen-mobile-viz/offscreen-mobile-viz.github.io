@@ -25,7 +25,7 @@ export default function DotPlot() {
     // opacity scale is a linear scale that maps the distance of a dot from the edge of the screen to an opacity value
     const opacityScale = d3.scaleLinear()
       .domain([0, maxDistance])
-      .range([1, 0])
+      .range([0, 1])
 
     const dotBins = svg.selectAll('.dotBin')
       .data(data)

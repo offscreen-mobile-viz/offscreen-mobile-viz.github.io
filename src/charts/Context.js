@@ -52,7 +52,7 @@ export default function Context() {
         .attr('class', 'viewfield')
         .attr('fill', 'none')
         .attr('stroke', 'black')
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 1)
         .attr('width', xScale(right) - xScale(left))
         .attr('height', height-10)
         .attr('x', xScale(left))
