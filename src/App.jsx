@@ -98,7 +98,7 @@ function App() {
             {chart === ChartType.DOTPLOT_N &&
                 <>
                   <label htmlFor="myRange" style={{width: '60px', textAlign: 'right'}}>n: {n}</label>
-                  <input type="range" min="10" max="250" step="10" value={n} className="slider" id="myRange" onChange={e => setN(e.target.value)}/>
+                  <input type="range" min="10" max="500" step="10" value={n} className="slider" id="myRange" onChange={e => setN(e.target.value)}/>
                 </>
             }
             {/* selector for chart type */}

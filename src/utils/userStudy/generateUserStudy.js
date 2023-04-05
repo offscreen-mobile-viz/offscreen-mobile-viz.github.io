@@ -16,6 +16,9 @@ export default function generateUserStudy(numUsers = 20) {
     for (let chartType of chartTypes){
         userStudy[chartType] = [];
         for (let dataset of Object.values(Datasets)){
+          if (dataset === Datasets.RANDOM) {
+            continue;
+          }
             for (let field of Fields[dataset].fields){ 
                 // add a question to the user study
                 userStudy[chartType].push({

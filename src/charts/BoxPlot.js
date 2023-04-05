@@ -111,6 +111,23 @@ Quartiles: ${d.quartiles}
 Outliers: ${d.outliers.length > 0 ? d.outliers.map(d => d.y) : 'none'}`
       )
     }
+
+    const lines = svg.selectAll('.line')
+    .data(bins)
+    .join('line')
+    .attr('class', 'line')
+    .attr('stroke', 'grey')
+    .attr('stroke-width', 1)
+    /*
+    .attr('x1', d => side == 'right' ? 25 : width - 25)
+    .attr('x2', side == 'right' ? 25 + 100 : width - 25 - 100)
+    */
+    .attr('x1', 0)
+    .attr('x2', width-30)
+    .attr('y1', d => yScale(d.x0))
+    .attr('y2', d => yScale(d.x0))
+    .attr('transform', `translate(${side == 'right' ? 30 : 0}, 0)`)
+
     /**
      * each box shall contain 4 elements: a rect (to demonstrate q1 and q3), a horizontal line (to show min), 
      * and two whiskers.
@@ -121,7 +138,7 @@ Outliers: ${d.outliers.length > 0 ? d.outliers.map(d => d.y) : 'none'}`
       enter => {
         const g = enter.append('g')
         .attr('class', 'box')
-      
+
         // add a box for q1-q3
         g.append('rect')
         .attr('fill', 'skyblue')
