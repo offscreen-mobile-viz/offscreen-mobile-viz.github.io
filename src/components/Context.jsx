@@ -1,28 +1,37 @@
 import * as d3 from 'd3'
-import { useEffect, useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import ContextChart from '../charts/Context.js'
 
 function Context({ dimensions, data, left, right }) {
   const ref = useRef(null)
-  const context = ContextChart().bins(1000)
-  
+  const context = useRef(null)
+
   useEffect(() => {
-    if(!data || data.length == 0 || !dimensions) {
-      return
-    }
+    context.current = ContextChart().bins(1000)
+  }, [])
+
+  useEffect(() => {
+    if(!dimensions || !context.current) return
+
+    context.current.dimensions(dimensions)
+  }, [dimensions])
+
+  useEffect(() => {
+    if(!data || !context.current) return
+
+    context.current.data(data)
 
     const svg = d3.select(ref.current)
+    svg.call(context.current.drawDots())
+  }, [data])
 
-    // update context
-    context
-      .dimensions(dimensions)
-      .data(data)
-      .left(left)
-      .right(right)
+  useEffect(() => {
+    if(!context.current) return
 
-    // render context
-    svg.call(context)
-  }, [data, dimensions, left, right])
+    const svg = d3.select(ref.current)
+    svg.call(context.current.drawViewField(left, right))
+  }, [left, right])
+
 
   return (
     <svg width={dimensions.width} height={dimensions.height} ref={ref} />
