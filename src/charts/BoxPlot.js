@@ -118,10 +118,6 @@ Outliers: ${d.outliers.length > 0 ? d.outliers.map(d => d.y) : 'none'}`
     .attr('class', 'line')
     .attr('stroke', 'grey')
     .attr('stroke-width', 1)
-    /*
-    .attr('x1', d => side == 'right' ? 25 : width - 25)
-    .attr('x2', side == 'right' ? 25 + 100 : width - 25 - 100)
-    */
     .attr('x1', 0)
     .attr('x2', width-30)
     .attr('y1', d => yScale(d.x0))
