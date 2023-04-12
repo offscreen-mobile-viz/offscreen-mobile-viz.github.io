@@ -24,18 +24,24 @@ export default function BarWithContext() {
         .attr('class', 'barsWithContext')
         
         const drawBars = data => {
+          let bw = x.bandwidth()
             svg.selectAll('.bar')
                 .data(data, d => d.x)
-                .join('rect')
-                .attr('class', 'bar')
-                .attr('stroke', 'midnightblue')
-                .attr('fill', 'steelblue')
-                .attr('x', d => x(d.x))
-                .attr('y', d => yScale(d.y))
-                .attr('width', x.bandwidth())
-                .attr('height', d => height - margin.bottom - yScale(d.y))
-                .append('title')
-                .text(d => d.y)
+                .join(
+                  enter => enter.append('rect')
+                    .attr('class', 'bar')
+                    .attr('stroke', 'midnightblue')
+                    .attr('fill', 'steelblue')
+                    .attr('x', d => x(d.x))
+                    .attr('y', d => yScale(d.y))
+                    .attr('width', bw)
+                    .attr('height', d => height - margin.bottom - yScale(d.y)),
+                  update => update.call(update =>
+                    update.attr('x', d => x(d.x))
+                    .attr('width', bw)
+                  ),
+                  exit => exit.remove()
+                )
         }
 
         const minWidth = 3, maxWidth = 75

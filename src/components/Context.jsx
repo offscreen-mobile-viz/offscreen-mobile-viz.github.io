@@ -19,17 +19,15 @@ function Context({ dimensions, data, left, right }) {
   useEffect(() => {
     if(!data || !context.current) return
 
-    context.current.data(data)
-
     const svg = d3.select(ref.current)
-    svg.call(context.current.drawDots())
+    svg.call(context.current.drawDots, data)
   }, [data])
 
   useEffect(() => {
     if(!context.current) return
 
     const svg = d3.select(ref.current)
-    svg.call(context.current.drawViewField(left, right))
+    svg.call(context.current.drawViewField, left, right)
   }, [left, right])
 
 

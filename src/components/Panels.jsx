@@ -11,10 +11,9 @@ import { useRef, useState, useEffect } from 'react'
 
 export default function Panels({ data, chart, n }) {
   // get bounding width and height of the browser
-  let [width, height] = [window.innerWidth, window.innerHeight]
-  // knock off 70px to account for topbox (or 0 if results in a negative height)
-  // then another 70 for the context chart
-  height = Math.max(height - 140, 0)
+  let [width, height] = [window.innerWidth, window.innerHeight - 70 - 90]
+  // knock off 70px to account for topbor
+  // then another 90 for the context chart
 
   const offscreenDimensions = { width: width * 0.15, height } 
   const barChartDimensions = { width: width - (2 * offscreenDimensions.width), height }
