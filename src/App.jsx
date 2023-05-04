@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import { Orientation, DeviceOrientation } from './utils/screenOrientation/ScreenOrientation'
 
 import * as d3 from 'd3'
-import generateUserStudy from './utils/userStudy/generateUserStudy'
 
 export const Datasets = {
   CARS: 'cars',
@@ -41,6 +40,12 @@ function App() {
   const [chart, setChart] = useState(ChartType.DOTPLOT40)
   const [data, setData] = useState([])
   const [n, setN] = useState(40)
+
+  // get bounding width and height of the browser
+  let dimensions = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
 
   useEffect(() => {
     async function fetch() {
@@ -123,7 +128,7 @@ function App() {
               })}
             </select>
           </div>
-          <Panels data={data} chart={chart} n={n}/>
+          <Panels data={data} dimensions={dimensions} chart={chart} n={n}/>
         </div>
       </Orientation>
 

@@ -9,9 +9,8 @@ import BarWithContext from '../charts/BarWithContext'
 import { useRef, useState, useEffect } from 'react'
 
 
-export default function Panels({ data, chart, n }) {
-  // get bounding width and height of the browser
-  let [width, height] = [window.innerWidth, window.innerHeight]
+export default function Panels({ data, chart, dimensions, n }) {
+  let { width, height } = dimensions
   // knock off 70px to account for topbox (or 0 if results in a negative height)
   // then another 70 for the context chart
   height = Math.max(height - 140, 0)
